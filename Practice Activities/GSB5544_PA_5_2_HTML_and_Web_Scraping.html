@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>HTML and Webscraping</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/clipboard/clipboard.min.js"></script>
+<script src="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/quarto-html/popper.min.js"></script>
+<script src="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/quarto-html/anchor.min.js"></script>
+<link href="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="GSB5544_PA_5_2_HTML_and_Web_Scraping_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">HTML and Webscraping</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="cell-2" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="scraping-an-html-table" class="level2">
+<h2 class="anchored" data-anchor-id="scraping-an-html-table">Scraping an HTML table</h2>
+<p>Open the URL https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population and scroll down until you see a table of the cities in the U.S. with population over 100,000 (as of Jul 1, 2025). We’ll use Beautiful Soup to scrape information from this table.</p>
+<p>1. Read in the HTML from the URL using the <code>requests</code> library.</p>
+<div id="cell-6" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>headers <span class="op">=</span> {<span class="st">"user-Agent"</span>: <span class="st">"GSB5544-class-exercise/1.0 (Cal Poly; educational use)"</span>}</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.get(url, headers<span class="op">=</span>headers)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(response.status_code)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(response.text), <span class="st">"characters of HTML"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>response.text[:<span class="dv">300</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>200
+1660731 characters of HTML</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>'&lt;!DOCTYPE html&gt;\n&lt;html class="client-nojs vector-feature-language-in-header-enabled vector-feature-language-in-main-menu-disabled vector-feature-language-in-main-page-header-disabled vector-feature-page-tools-pinned-disabled vector-feature-toc-pinned-clientpref-1 vector-feature-main-menu-pinned-disab'</code></pre>
+</div>
+</div>
+<p>2. Use Beautiful Soup to parse this string into a tree called <code>soup</code></p>
+<div id="cell-8" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bs4 <span class="im">import</span> BeautifulSoup</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>soup <span class="op">=</span> BeautifulSoup(response.text, <span class="st">"html.parser"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(soup))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>soup.title.text</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'bs4.BeautifulSoup'&gt;</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>'List of United States cities by population - Wikipedia'</code></pre>
+</div>
+</div>
+<p>3. Determine how many tables are in <code>soup</code>. (Hint: use <code>find_all("table")</code>.)</p>
+<div id="cell-10" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>tables <span class="op">=</span> soup.find_all(<span class="st">"table"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(tables)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># this is correct</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>10</code></pre>
+</div>
+</div>
+<p>4. There are several tables included in <code>soup</code>, so we need to narrow it down. Go to the cities table Wikipedia page and “Inspect” it. What are the attributes (class, style) of this table?</p>
+<div id="cell-12" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Attributes of the cities table</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>table_class <span class="op">=</span> <span class="st">"sortable wikitable sticky-header-multi static-row-numbers sort-under col1left col2center"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>table_style <span class="op">=</span> <span class="st">"text-align:right"</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"class:"</span>, table_class)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"style:"</span>, table_style)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class: sortable wikitable sticky-header-multi static-row-numbers sort-under col1left col2center
+style: text-align:right</code></pre>
+</div>
+</div>
+<p>5. You should find that the cities table on the Wikipedia page corresponds to the element</p>
+<pre><code>&lt;table class="sortable wikitable sticky-header-multi static-row-numbers sort-under col1left col2center" style="text-align:right"&gt;</code></pre>
+<p>How many tables in <code>soup</code> have these attributes?</p>
+<div id="cell-14" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>matching_tables <span class="op">=</span> soup.find_all(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"table"</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    attrs<span class="op">=</span>{</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"class"</span>: table_class,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"style"</span>: table_style</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(matching_tables)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>1</code></pre>
+</div>
+</div>
+<p>6. There should only be 1 table of this type, so we just need to select it. The following code finds all tables with the desired attributes and then selects the first (only) one to store as <code>table</code>. (You just need to run this.)</p>
+<div id="cell-16" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> soup.find_all(<span class="st">"table"</span>,</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                  attrs<span class="op">=</span>{</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"class"</span>: <span class="st">"sortable wikitable sticky-header-multi static-row-numbers sort-under col1left col2center"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"style"</span>: <span class="st">"text-align:right"</span>}</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                  )[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>7. Our goal is now to scrape the information in <code>table</code> to create a Pandas data frame with one row for each city and columns for:</p>
+<ul>
+<li>city</li>
+<li>state</li>
+<li>population (2025 estimate)</li>
+<li>2020 land area (sq mi).</li>
+</ul>
+<p>First, let’s just see how to scrape the information for New York City. Starting from <code>table</code> create an object, called <code>city</code>, that contains the information just for New York City.</p>
+<p>Hints: Inspect the source; what kind of tag represents each row? Find all tags of this type in <code>table</code> and select the first one that corresponds to a city. Note that the first 3 rows of the table are headers.</p>
+<div id="cell-18" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> table.find_all(<span class="st">"tr"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>city <span class="op">=</span> rows[<span class="dv">3</span>]</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>city</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>&lt;tr id="mw0g"&gt;
+&lt;td id="mw0w" style="background-color:#cfecec"&gt;&lt;a href="https://en.wikipedia.org/wiki/New_York_City" id="mw1A" rel="mw:WikiLink" title="New York City"&gt;New York&lt;/a&gt;&lt;sup about="#mwt57" class="mw-ref reference" data-mw='{"name":"ref","attrs":{"group":"lower-alpha"},"body":{"id":"mw-reference-text-cite_note-5"},"parts":[{"template":{"target":{"wt":"efn","href":"./Template:Efn"},"params":{"1":{"wt":"Since 1898, the [[New York City|City of New York]], New York, has comprised [[borough of New York City|five boroughs]] with [[consolidated city-county|consolidated borough–county governments]] (2025 population estimates):\n* [[Brooklyn|The Borough of Brooklyn]] and [[Brooklyn|Kings County]]\n: (pop. 2,653,963)\n* [[Queens|The Borough of Queens]] and [[Queens|Queens County]]\n: (pop. 2,358,182)\n* [[Manhattan|The Borough of Manhattan]] and [[Manhattan|New York County]]\n: (pop. 1,664,862)\n* [[The Bronx|The Borough of the Bronx]] and [[The Bronx|Bronx County]]\n: (pop. 1,406,332)\n* [[Staten Island|The Borough of Staten Island]] and [[Staten Island|Richmond County]]\n: (pop. 501,290)"}},"i":0}}]}' id="cite_ref-5" rel="dc:references" typeof="mw:Transclusion mw:Extension/ref"&gt;&lt;a data-mw-group="lower-alpha" href="#cite_note-5" id="mw1Q"&gt;&lt;span class="mw-reflink-text" id="mw1g"&gt;&lt;span class="cite-bracket" id="mw1w"&gt;[&lt;/span&gt;c&lt;span class="cite-bracket" id="mw2A"&gt;]&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/sup&gt;&lt;/td&gt;
+&lt;td id="mw2Q"&gt;&lt;a href="https://en.wikipedia.org/wiki/New_York_(state)" id="mw2g" rel="mw:WikiLink" title="New York (state)"&gt;NY&lt;/a&gt;&lt;/td&gt;
+&lt;td about="#mwt60" data-mw='{"parts":["| ",{"template":{"target":{"wt":"change","href":"./Template:Change"},"params":{"invert":{"wt":"on"},"1":{"wt":"8584629"},"2":{"wt":"8804190"}},"i":0}}]}' id="mw2w" style="text-align:right;" typeof="mw:Transclusion"&gt;8,584,629&lt;/td&gt;&lt;td about="#mwt60" style="text-align:right;"&gt;8,804,190&lt;/td&gt;&lt;td about="#mwt60" style="text-align:right;"&gt;&lt;span data-sort-value="2999751000000000000♠" style="display:none"&gt;&lt;/span&gt;&lt;span style="color:red"&gt;−2.49%&lt;/span&gt;&lt;/td&gt;
+&lt;td about="#mwt61" data-mw='{"parts":["| ",{"template":{"target":{"wt":"convert","href":"./Template:Convert"},"params":{"1":{"wt":"300.5"},"2":{"wt":"sqmi"},"3":{"wt":"km2"},"4":{"wt":"1"},"disp":{"wt":"table"}},"i":0}}]}' id="mw3A" style="text-align:right;" typeof="mw:Transclusion"&gt;300.5&lt;/td&gt;&lt;td about="#mwt61" style="text-align:right;"&gt;778.3&lt;/td&gt;
+&lt;td about="#mwt62" data-mw='{"parts":["| ",{"template":{"target":{"wt":"convert","href":"./Template:Convert"},"params":{"1":{"wt":"29298"},"2":{"wt":"/sqmi"},"3":{"wt":"/km2"},"disp":{"wt":"table"}},"i":0}}]}' id="mw3Q" style="text-align:right;" typeof="mw:Transclusion"&gt;29,298&lt;/td&gt;&lt;td about="#mwt62" style="text-align:right;"&gt;11,312&lt;/td&gt;
+&lt;td id="mw3g"&gt;&lt;small id="mw3w"&gt;&lt;span about="#mwt63" class="geo-inline" data-mw='{"parts":[{"template":{"target":{"wt":"coord","href":"./Template:Coord"},"params":{"1":{"wt":"40.66"},"2":{"wt":"N"},"3":{"wt":"73.94"},"4":{"wt":"W"},"name":{"wt":"New York City"},"5":{"wt":"region:US_type:city"},"format":{"wt":"dms"},"display":{"wt":"inline"}},"i":0}}]}' id="mw4A" typeof="mw:Transclusion"&gt;&lt;style about="#mwt64" data-mw='{"name":"templatestyles","attrs":{"src":"Module:Coordinates/styles.css"},"body":{"extsrc":""}}' data-mw-deduplicate="TemplateStyles:r1156832818" typeof="mw:Extension/templatestyles"&gt;.mw-parser-output .geo-default,.mw-parser-output .geo-dms,.mw-parser-output .geo-dec{display:inline}.mw-parser-output .geo-nondefault,.mw-parser-output .geo-multi-punct,.mw-parser-output .geo-inline-hidden{display:none}.mw-parser-output .longitude,.mw-parser-output .latitude{white-space:nowrap}&lt;/style&gt;&lt;span class="plainlinks nourlexpansion"&gt;&lt;a class="external text" href="https://geohack.toolforge.org/geohack.php?pagename=List_of_United_States_cities_by_population&amp;amp;params=40.66_N_73.94_W_region:US_type:city&amp;amp;title=New+York+City" rel="mw:ExtLink"&gt;&lt;span class="geo-default"&gt;&lt;span class="geo-dms" title="Maps, aerial photos, and other data for this location"&gt;&lt;span class="latitude"&gt;40°40′N&lt;/span&gt; &lt;span class="longitude"&gt;73°56′W&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="geo-multi-punct"&gt;&lt;span typeof="mw:Entity"&gt;﻿&lt;/span&gt; / &lt;span typeof="mw:Entity"&gt;﻿&lt;/span&gt;&lt;/span&gt;&lt;span class="geo-nondefault"&gt;&lt;span class="vcard"&gt;&lt;span class="geo-dec" title="Maps, aerial photos, and other data for this location"&gt;40.66°N 73.94°W&lt;/span&gt;&lt;span style="display:none"&gt;&lt;span typeof="mw:Entity"&gt;﻿&lt;/span&gt; / &lt;span class="geo"&gt;40.66; -73.94&lt;/span&gt;&lt;/span&gt;&lt;span style="display:none"&gt;&lt;span typeof="mw:Entity"&gt;﻿&lt;/span&gt; (&lt;span class="fn org"&gt;New York City&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;&lt;link href="./Category:Pages_using_gadget_WikiMiniAtlas" rel="mw:PageProp/Category"/&gt;&lt;/span&gt;&lt;/small&gt;&lt;/td&gt;&lt;/tr&gt;</code></pre>
+</div>
+</div>
+<p>8. Starting with <code>city</code> extract the city’s name and store it as <code>name</code>.</p>
+<p>Hints: Inspect the source; what tag represents the cells within a row? Find all tags of this type and extract the text corresponding to the cell with the city’s name.</p>
+<div id="cell-20" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>cells <span class="op">=</span> city.find_all(<span class="st">"td"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>name <span class="op">=</span> cells[<span class="dv">0</span>].get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<pre><code>'New York[c]'</code></pre>
+</div>
+</div>
+<p>9. Extract the city’s state and store it as <code>state</code>.</p>
+<div id="cell-22" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> cells[<span class="dv">1</span>].get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>state</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>'NY'</code></pre>
+</div>
+</div>
+<p>10. Extract the city’s population and store is as <code>population</code>.</p>
+<div id="cell-24" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>population <span class="op">=</span> cells[<span class="dv">2</span>].get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>population</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>'8,584,629'</code></pre>
+</div>
+</div>
+<p>11. Extract the city’s area and store is as <code>area</code>.</p>
+<div id="cell-26" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>area <span class="op">=</span> cells[<span class="dv">5</span>].get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>area</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>'300.5'</code></pre>
+</div>
+</div>
+<p>12. Now put the steps for a single city into a loop to extract the information for all cities in <code>table</code> and create a data frame.</p>
+<p>Hints: - Start with an empty list named <code>rows</code> - Write a loop that starts <code>for city in ...</code> and replace <code>...</code> code that finds all the table rows. (Use what you did in part 7, but don’t just select one row. Select all rows except for the 3 header rows.) - Use your code from 8-11 to extract the information for the city - And append it to <code>rows</code> as “name”, “state”, “population”, “area” - Convert <code>rows</code> into a Pandas data frame. You should obtain a data frame with 348 rows and 4 columns.</p>
+<div id="cell-28" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE. ADD AS MANY CELLS AS NEEDED</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> city <span class="kw">in</span> table.find_all(<span class="st">"tr"</span>)[<span class="dv">3</span>:]:</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    cells <span class="op">=</span> city.find_all(<span class="st">"td"</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> cells[<span class="dv">0</span>].find(<span class="st">"a"</span>).get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> cells[<span class="dv">1</span>].get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    population <span class="op">=</span> cells[<span class="dv">2</span>].get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    area <span class="op">=</span> cells[<span class="dv">5</span>].get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    rows.append([name, state, population, area])</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>cities <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    rows,</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>[<span class="st">"name"</span>, <span class="st">"state"</span>, <span class="st">"population"</span>, <span class="st">"area"</span>]</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>cities</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">name</th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">population</th>
+<th data-quarto-table-cell-role="th">area</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>New York</td>
+<td>NY</td>
+<td>8,584,629</td>
+<td>300.5</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Los Angeles</td>
+<td>CA</td>
+<td>3,869,089</td>
+<td>469.5</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Chicago</td>
+<td>IL</td>
+<td>2,731,585</td>
+<td>227.7</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Houston</td>
+<td>TX</td>
+<td>2,397,315</td>
+<td>640.4</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>Phoenix</td>
+<td>AZ</td>
+<td>1,665,481</td>
+<td>518.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">343</th>
+<td>San Angelo</td>
+<td>TX</td>
+<td>100,640</td>
+<td>59.7</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">344</th>
+<td>Edmond</td>
+<td>OK</td>
+<td>100,479</td>
+<td>84.6</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">345</th>
+<td>Davenport</td>
+<td>IA</td>
+<td>100,358</td>
+<td>63.8</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">346</th>
+<td>Deltona</td>
+<td>FL</td>
+<td>100,267</td>
+<td>37.3</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">347</th>
+<td>Longmont</td>
+<td>CO</td>
+<td>100,109</td>
+<td>28.8</td>
+</tr>
+</tbody>
+</table>
+
+<p>348 rows × 4 columns</p>
+</div>
+</div>
+</div>
+<p>13. Use the Pandas command <code>pd.read_html</code> can be used to scrape the table from the webpage. Note: <code>read_html</code> will return all the tables, so you will need to narrow your request using attributes. You don’t need to worry about selecting columns; just scrape the whole table.</p>
+<div id="cell-30" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>pandas_tables <span class="op">=</span> pd.read_html(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    url,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    attrs<span class="op">=</span>{</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"class"</span>: <span class="st">"sortable wikitable sticky-header-multi static-row-numbers sort-under col1left col2center"</span>,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"style"</span>: <span class="st">"text-align:right"</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    storage_options<span class="op">=</span>headers</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>cities_pandas <span class="op">=</span> pandas_tables[<span class="dv">0</span>]</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>cities_pandas</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Municipality</th>
+<th data-quarto-table-cell-role="th">ST</th>
+<th data-quarto-table-cell-role="th">2025 estimate</th>
+<th data-quarto-table-cell-role="th">2020 census</th>
+<th data-quarto-table-cell-role="th">Change</th>
+<th colspan="2" data-quarto-table-cell-role="th" data-halign="left">2020 land area</th>
+<th colspan="2" data-quarto-table-cell-role="th" data-halign="left">2020 density</th>
+<th data-quarto-table-cell-role="th">Location</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Municipality</th>
+<th data-quarto-table-cell-role="th">ST</th>
+<th data-quarto-table-cell-role="th">2025 estimate</th>
+<th data-quarto-table-cell-role="th">2020 census</th>
+<th data-quarto-table-cell-role="th">Change</th>
+<th data-quarto-table-cell-role="th">mi2</th>
+<th data-quarto-table-cell-role="th">km2</th>
+<th data-quarto-table-cell-role="th">/ mi2</th>
+<th data-quarto-table-cell-role="th">/ km2</th>
+<th data-quarto-table-cell-role="th">Location</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>New York[c]</td>
+<td>NY</td>
+<td>8584629.0</td>
+<td>8804190.0</td>
+<td>−2.49%</td>
+<td>300.5</td>
+<td>778.3</td>
+<td>29298.0</td>
+<td>11312.0</td>
+<td>40°40′N 73°56′W﻿ / ﻿40.66°N 73.94°W</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Los Angeles</td>
+<td>CA</td>
+<td>3869089.0</td>
+<td>3898747.0</td>
+<td>−0.76%</td>
+<td>469.5</td>
+<td>1216.0</td>
+<td>8304.0</td>
+<td>3206.0</td>
+<td>34°01′N 118°25′W﻿ / ﻿34.02°N 118.41°W</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Chicago</td>
+<td>IL</td>
+<td>2731585.0</td>
+<td>2746388.0</td>
+<td>−0.54%</td>
+<td>227.7</td>
+<td>589.7</td>
+<td>12061.0</td>
+<td>4657.0</td>
+<td>41°50′N 87°41′W﻿ / ﻿41.84°N 87.68°W</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>Houston</td>
+<td>TX</td>
+<td>2397315.0</td>
+<td>2304580.0</td>
+<td>+4.02%</td>
+<td>640.4</td>
+<td>1658.6</td>
+<td>3599.0</td>
+<td>1390.0</td>
+<td>29°47′N 95°23′W﻿ / ﻿29.79°N 95.39°W</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">344</th>
+<td>San Angelo</td>
+<td>TX</td>
+<td>100640.0</td>
+<td>99893.0</td>
+<td>+0.75%</td>
+<td>59.7</td>
+<td>154.6</td>
+<td>1673.0</td>
+<td>646.0</td>
+<td>31°26′N 100°27′W﻿ / ﻿31.44°N 100.45°W</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">345</th>
+<td>Edmond</td>
+<td>OK</td>
+<td>100479.0</td>
+<td>94428.0</td>
+<td>+6.41%</td>
+<td>84.6</td>
+<td>219.1</td>
+<td>1116.0</td>
+<td>431.0</td>
+<td>35°40′N 97°25′W﻿ / ﻿35.67°N 97.41°W</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">346</th>
+<td>Davenport</td>
+<td>IA</td>
+<td>100358.0</td>
+<td>101724.0</td>
+<td>−1.34%</td>
+<td>63.8</td>
+<td>165.2</td>
+<td>1594.0</td>
+<td>615.0</td>
+<td>41°34′N 90°36′W﻿ / ﻿41.56°N 90.60°W</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">347</th>
+<td>Deltona</td>
+<td>FL</td>
+<td>100267.0</td>
+<td>93692.0</td>
+<td>+7.02%</td>
+<td>37.3</td>
+<td>96.6</td>
+<td>2512.0</td>
+<td>970.0</td>
+<td>28°55′N 81°13′W﻿ / ﻿28.91°N 81.21°W</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">348</th>
+<td>Longmont</td>
+<td>CO</td>
+<td>100109.0</td>
+<td>98885.0</td>
+<td>+1.24%</td>
+<td>28.8</td>
+<td>74.6</td>
+<td>3434.0</td>
+<td>1326.0</td>
+<td>40°10′N 105°06′W﻿ / ﻿40.17°N 105.10°W</td>
+</tr>
+</tbody>
+</table>
+
+<p>349 rows × 10 columns</p>
+</div>
+</div>
+</div>
+</section>
+<section id="scraping-from-multiple-webpages" class="level2">
+<h2 class="anchored" data-anchor-id="scraping-from-multiple-webpages">Scraping from multiple webpages</h2>
+<p>We will scrape the hockey statistics from this website: https://www.scrapethissite.com/pages/forms/. Notice that the information is spread over many pages.</p>
+<p>1. Scrape the information from the first page with Beatiful Soup.</p>
+<div id="cell-33" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://www.scrapethissite.com/pages/forms/"</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.get(url, headers<span class="op">=</span>headers)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>soup <span class="op">=</span> BeautifulSoup(response.text, <span class="st">"html.parser"</span>)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(response.status_code)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>200</code></pre>
+</div>
+</div>
+<p>2. Find the main table on this page and store it as <code>table</code>.</p>
+<div id="cell-35" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> soup.find(<span class="st">"table"</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>table</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>&lt;table class="table"&gt;
+&lt;tr&gt;
+&lt;th&gt;
+                            Team Name
+                        &lt;/th&gt;
+&lt;th&gt;
+                            Year
+                        &lt;/th&gt;
+&lt;th&gt;
+                            Wins
+                        &lt;/th&gt;
+&lt;th&gt;
+                            Losses
+                        &lt;/th&gt;
+&lt;th&gt;
+                            OT Losses
+                        &lt;/th&gt;
+&lt;th&gt;
+                            Win %
+                        &lt;/th&gt;
+&lt;th&gt;
+                            Goals For (GF)
+                        &lt;/th&gt;
+&lt;th&gt;
+                            Goals Against (GA)
+                        &lt;/th&gt;
+&lt;th&gt;
+                            + / -
+                        &lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Boston Bruins
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            44
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            24
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-success"&gt;
+                            0.55
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            299
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            264
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            35
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Buffalo Sabres
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            31
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            30
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.388
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            292
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            278
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            14
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Calgary Flames
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            46
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            26
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-success"&gt;
+                            0.575
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            344
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            263
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            81
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Chicago Blackhawks
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            49
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            23
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-success"&gt;
+                            0.613
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            284
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            211
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            73
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Detroit Red Wings
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            34
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            38
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.425
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            273
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            298
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -25
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Edmonton Oilers
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            37
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            37
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.463
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            272
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            272
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            0
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Hartford Whalers
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            31
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            38
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.388
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            238
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            276
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -38
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Los Angeles Kings
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            46
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            24
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-success"&gt;
+                            0.575
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            340
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            254
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            86
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Minnesota North Stars
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            27
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            39
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.338
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            256
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            266
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -10
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Montreal Canadiens
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            39
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            30
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.487
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            273
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            249
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            24
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            New Jersey Devils
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            32
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            33
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.4
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            272
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            264
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            8
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            New York Islanders
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            25
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            45
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.312
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            223
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            290
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -67
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            New York Rangers
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            36
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            31
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.45
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            297
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            265
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            32
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Philadelphia Flyers
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            33
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            37
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.412
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            252
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            267
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -15
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Pittsburgh Penguins
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            41
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            33
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-success"&gt;
+                            0.512
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            342
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            305
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            37
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Quebec Nordiques
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            16
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            50
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.2
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            236
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            354
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -118
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            St. Louis Blues
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            47
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            22
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-success"&gt;
+                            0.588
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            310
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            250
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            60
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Toronto Maple Leafs
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            23
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            46
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.287
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            241
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            318
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -77
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Vancouver Canucks
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            28
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            43
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.35
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            243
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            315
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -72
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Washington Capitals
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            37
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            36
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.463
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            258
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            258
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            0
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Winnipeg Jets
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1990
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            26
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            43
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.325
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            260
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            288
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -28
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Boston Bruins
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1991
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            36
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            32
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.45
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            270
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            275
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -5
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Buffalo Sabres
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1991
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            31
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            37
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.388
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            289
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            299
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -10
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Calgary Flames
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1991
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            31
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            37
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.388
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            296
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            305
+                        &lt;/td&gt;
+&lt;td class="diff text-danger"&gt;
+                            -9
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="team"&gt;
+&lt;td class="name"&gt;
+                            Chicago Blackhawks
+                        &lt;/td&gt;
+&lt;td class="year"&gt;
+                            1991
+                        &lt;/td&gt;
+&lt;td class="wins"&gt;
+                            36
+                        &lt;/td&gt;
+&lt;td class="losses"&gt;
+                            29
+                        &lt;/td&gt;
+&lt;td class="ot-losses"&gt;
+&lt;/td&gt;
+&lt;td class="pct text-danger"&gt;
+                            0.45
+                        &lt;/td&gt;
+&lt;td class="gf"&gt;
+                            257
+                        &lt;/td&gt;
+&lt;td class="ga"&gt;
+                            236
+                        &lt;/td&gt;
+&lt;td class="diff text-success"&gt;
+                            21
+                        &lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+</div>
+</div>
+<p>3. Extract the information from the cells of this table into a Pandas data frame.</p>
+<div id="cell-37" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>column_names <span class="op">=</span> []</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> heading <span class="kw">in</span> table.find_all(<span class="st">"th"</span>):</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    column_names.append(heading.get_text(strip<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> team <span class="kw">in</span> table.find_all(<span class="st">"tr"</span>)[<span class="dv">1</span>:]:</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    cells <span class="op">=</span> team.find_all(<span class="st">"td"</span>)</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(cells) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>        row <span class="op">=</span> []</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> cell <span class="kw">in</span> cells:</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>            row.append(cell.get_text(strip<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>        rows.append(row)</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>hockey <span class="op">=</span> pd.DataFrame(rows, columns<span class="op">=</span>column_names)</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>hockey</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Team Name</th>
+<th data-quarto-table-cell-role="th">Year</th>
+<th data-quarto-table-cell-role="th">Wins</th>
+<th data-quarto-table-cell-role="th">Losses</th>
+<th data-quarto-table-cell-role="th">OT Losses</th>
+<th data-quarto-table-cell-role="th">Win %</th>
+<th data-quarto-table-cell-role="th">Goals For (GF)</th>
+<th data-quarto-table-cell-role="th">Goals Against (GA)</th>
+<th data-quarto-table-cell-role="th">+ / -</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Boston Bruins</td>
+<td>1990</td>
+<td>44</td>
+<td>24</td>
+<td></td>
+<td>0.55</td>
+<td>299</td>
+<td>264</td>
+<td>35</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Buffalo Sabres</td>
+<td>1990</td>
+<td>31</td>
+<td>30</td>
+<td></td>
+<td>0.388</td>
+<td>292</td>
+<td>278</td>
+<td>14</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Calgary Flames</td>
+<td>1990</td>
+<td>46</td>
+<td>26</td>
+<td></td>
+<td>0.575</td>
+<td>344</td>
+<td>263</td>
+<td>81</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Chicago Blackhawks</td>
+<td>1990</td>
+<td>49</td>
+<td>23</td>
+<td></td>
+<td>0.613</td>
+<td>284</td>
+<td>211</td>
+<td>73</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>Detroit Red Wings</td>
+<td>1990</td>
+<td>34</td>
+<td>38</td>
+<td></td>
+<td>0.425</td>
+<td>273</td>
+<td>298</td>
+<td>-25</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>Edmonton Oilers</td>
+<td>1990</td>
+<td>37</td>
+<td>37</td>
+<td></td>
+<td>0.463</td>
+<td>272</td>
+<td>272</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>Hartford Whalers</td>
+<td>1990</td>
+<td>31</td>
+<td>38</td>
+<td></td>
+<td>0.388</td>
+<td>238</td>
+<td>276</td>
+<td>-38</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>Los Angeles Kings</td>
+<td>1990</td>
+<td>46</td>
+<td>24</td>
+<td></td>
+<td>0.575</td>
+<td>340</td>
+<td>254</td>
+<td>86</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>Minnesota North Stars</td>
+<td>1990</td>
+<td>27</td>
+<td>39</td>
+<td></td>
+<td>0.338</td>
+<td>256</td>
+<td>266</td>
+<td>-10</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
+<td>Montreal Canadiens</td>
+<td>1990</td>
+<td>39</td>
+<td>30</td>
+<td></td>
+<td>0.487</td>
+<td>273</td>
+<td>249</td>
+<td>24</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">10</th>
+<td>New Jersey Devils</td>
+<td>1990</td>
+<td>32</td>
+<td>33</td>
+<td></td>
+<td>0.4</td>
+<td>272</td>
+<td>264</td>
+<td>8</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">11</th>
+<td>New York Islanders</td>
+<td>1990</td>
+<td>25</td>
+<td>45</td>
+<td></td>
+<td>0.312</td>
+<td>223</td>
+<td>290</td>
+<td>-67</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">12</th>
+<td>New York Rangers</td>
+<td>1990</td>
+<td>36</td>
+<td>31</td>
+<td></td>
+<td>0.45</td>
+<td>297</td>
+<td>265</td>
+<td>32</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">13</th>
+<td>Philadelphia Flyers</td>
+<td>1990</td>
+<td>33</td>
+<td>37</td>
+<td></td>
+<td>0.412</td>
+<td>252</td>
+<td>267</td>
+<td>-15</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">14</th>
+<td>Pittsburgh Penguins</td>
+<td>1990</td>
+<td>41</td>
+<td>33</td>
+<td></td>
+<td>0.512</td>
+<td>342</td>
+<td>305</td>
+<td>37</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">15</th>
+<td>Quebec Nordiques</td>
+<td>1990</td>
+<td>16</td>
+<td>50</td>
+<td></td>
+<td>0.2</td>
+<td>236</td>
+<td>354</td>
+<td>-118</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">16</th>
+<td>St. Louis Blues</td>
+<td>1990</td>
+<td>47</td>
+<td>22</td>
+<td></td>
+<td>0.588</td>
+<td>310</td>
+<td>250</td>
+<td>60</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">17</th>
+<td>Toronto Maple Leafs</td>
+<td>1990</td>
+<td>23</td>
+<td>46</td>
+<td></td>
+<td>0.287</td>
+<td>241</td>
+<td>318</td>
+<td>-77</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">18</th>
+<td>Vancouver Canucks</td>
+<td>1990</td>
+<td>28</td>
+<td>43</td>
+<td></td>
+<td>0.35</td>
+<td>243</td>
+<td>315</td>
+<td>-72</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">19</th>
+<td>Washington Capitals</td>
+<td>1990</td>
+<td>37</td>
+<td>36</td>
+<td></td>
+<td>0.463</td>
+<td>258</td>
+<td>258</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">20</th>
+<td>Winnipeg Jets</td>
+<td>1990</td>
+<td>26</td>
+<td>43</td>
+<td></td>
+<td>0.325</td>
+<td>260</td>
+<td>288</td>
+<td>-28</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">21</th>
+<td>Boston Bruins</td>
+<td>1991</td>
+<td>36</td>
+<td>32</td>
+<td></td>
+<td>0.45</td>
+<td>270</td>
+<td>275</td>
+<td>-5</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">22</th>
+<td>Buffalo Sabres</td>
+<td>1991</td>
+<td>31</td>
+<td>37</td>
+<td></td>
+<td>0.388</td>
+<td>289</td>
+<td>299</td>
+<td>-10</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">23</th>
+<td>Calgary Flames</td>
+<td>1991</td>
+<td>31</td>
+<td>37</td>
+<td></td>
+<td>0.388</td>
+<td>296</td>
+<td>305</td>
+<td>-9</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">24</th>
+<td>Chicago Blackhawks</td>
+<td>1991</td>
+<td>36</td>
+<td>29</td>
+<td></td>
+<td>0.45</td>
+<td>257</td>
+<td>236</td>
+<td>21</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-38" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>hockey.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>(25, 9)</code></pre>
+</div>
+</div>
+<p>4. But this only represents the first page of data. There are many pages of data. How do we scrape all of the data?</p>
+<p>We could switch to different pages by modifying the <code>page_num</code> parameter in the URL.</p>
+<p>Alternatively, we can just grab the links at the bottom of the page.</p>
+<div id="cell-41" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>pagination <span class="op">=</span> soup.find(<span class="st">"ul"</span>, attrs<span class="op">=</span>{<span class="st">"class"</span>: <span class="st">"pagination"</span>})</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> pagination.find_all(<span class="st">"a"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s take a look at the links found.</p>
+<div id="cell-43" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> link <span class="kw">in</span> links:</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(link.attrs[<span class="st">"href"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>/pages/forms/?page_num=1
+/pages/forms/?page_num=2
+/pages/forms/?page_num=3
+/pages/forms/?page_num=4
+/pages/forms/?page_num=5
+/pages/forms/?page_num=6
+/pages/forms/?page_num=7
+/pages/forms/?page_num=8
+/pages/forms/?page_num=9
+/pages/forms/?page_num=10
+/pages/forms/?page_num=11
+/pages/forms/?page_num=12
+/pages/forms/?page_num=13
+/pages/forms/?page_num=14
+/pages/forms/?page_num=15
+/pages/forms/?page_num=16
+/pages/forms/?page_num=17
+/pages/forms/?page_num=18
+/pages/forms/?page_num=19
+/pages/forms/?page_num=20
+/pages/forms/?page_num=21
+/pages/forms/?page_num=22
+/pages/forms/?page_num=23
+/pages/forms/?page_num=24
+/pages/forms/?page_num=1</code></pre>
+</div>
+</div>
+<p>Now we can loop over <code>links</code> to make a request to the url for each page and scrape the data into a table similar to what we did for the first page. Write such a loop to extract the data and create a Pandas data frame.</p>
+<p>A few technicalities:</p>
+<ul>
+<li>You might need to skip the “previous” and “next” buttons</li>
+<li>So you don’t keep repeating headers, you will want to skip rows that don’t represent teams.</li>
+</ul>
+<div id="cell-45" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>all_rows <span class="op">=</span> []</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>base_url <span class="op">=</span> <span class="st">"https://www.scrapethissite.com"</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> link <span class="kw">in</span> links:</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    link_text <span class="op">=</span> link.get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> link_text.isdigit():</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>        page_url <span class="op">=</span> base_url <span class="op">+</span> link[<span class="st">"href"</span>]</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>        page_response <span class="op">=</span> requests.get(page_url, headers<span class="op">=</span>headers)</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>        page_soup <span class="op">=</span> BeautifulSoup(page_response.text, <span class="st">"html.parser"</span>)</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>        page_table <span class="op">=</span> page_soup.find(<span class="st">"table"</span>)</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> team <span class="kw">in</span> page_table.find_all(<span class="st">"tr"</span>)[<span class="dv">1</span>:]:</span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>            cells <span class="op">=</span> team.find_all(<span class="st">"td"</span>)</span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">len</span>(cells) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>                row <span class="op">=</span> []</span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> cell <span class="kw">in</span> cells:</span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>                    row.append(cell.get_text(strip<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a>                all_rows.append(row)</span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>all_hockey <span class="op">=</span> pd.DataFrame(all_rows, columns<span class="op">=</span>column_names)</span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a>all_hockey</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Team Name</th>
+<th data-quarto-table-cell-role="th">Year</th>
+<th data-quarto-table-cell-role="th">Wins</th>
+<th data-quarto-table-cell-role="th">Losses</th>
+<th data-quarto-table-cell-role="th">OT Losses</th>
+<th data-quarto-table-cell-role="th">Win %</th>
+<th data-quarto-table-cell-role="th">Goals For (GF)</th>
+<th data-quarto-table-cell-role="th">Goals Against (GA)</th>
+<th data-quarto-table-cell-role="th">+ / -</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Boston Bruins</td>
+<td>1990</td>
+<td>44</td>
+<td>24</td>
+<td></td>
+<td>0.55</td>
+<td>299</td>
+<td>264</td>
+<td>35</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Buffalo Sabres</td>
+<td>1990</td>
+<td>31</td>
+<td>30</td>
+<td></td>
+<td>0.388</td>
+<td>292</td>
+<td>278</td>
+<td>14</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Calgary Flames</td>
+<td>1990</td>
+<td>46</td>
+<td>26</td>
+<td></td>
+<td>0.575</td>
+<td>344</td>
+<td>263</td>
+<td>81</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Chicago Blackhawks</td>
+<td>1990</td>
+<td>49</td>
+<td>23</td>
+<td></td>
+<td>0.613</td>
+<td>284</td>
+<td>211</td>
+<td>73</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>Detroit Red Wings</td>
+<td>1990</td>
+<td>34</td>
+<td>38</td>
+<td></td>
+<td>0.425</td>
+<td>273</td>
+<td>298</td>
+<td>-25</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">577</th>
+<td>Tampa Bay Lightning</td>
+<td>2011</td>
+<td>38</td>
+<td>36</td>
+<td>8</td>
+<td>0.463</td>
+<td>235</td>
+<td>281</td>
+<td>-46</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">578</th>
+<td>Toronto Maple Leafs</td>
+<td>2011</td>
+<td>35</td>
+<td>37</td>
+<td>10</td>
+<td>0.427</td>
+<td>231</td>
+<td>264</td>
+<td>-33</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">579</th>
+<td>Vancouver Canucks</td>
+<td>2011</td>
+<td>51</td>
+<td>22</td>
+<td>9</td>
+<td>0.622</td>
+<td>249</td>
+<td>198</td>
+<td>51</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">580</th>
+<td>Washington Capitals</td>
+<td>2011</td>
+<td>42</td>
+<td>32</td>
+<td>8</td>
+<td>0.512</td>
+<td>222</td>
+<td>230</td>
+<td>-8</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">581</th>
+<td>Winnipeg Jets</td>
+<td>2011</td>
+<td>37</td>
+<td>35</td>
+<td>10</td>
+<td>0.451</td>
+<td>225</td>
+<td>246</td>
+<td>-21</td>
+</tr>
+</tbody>
+</table>
+
+<p>582 rows × 9 columns</p>
+</div>
+</div>
+</div>
+<div id="cell-46" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>all_hockey.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<pre><code>(582, 9)</code></pre>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

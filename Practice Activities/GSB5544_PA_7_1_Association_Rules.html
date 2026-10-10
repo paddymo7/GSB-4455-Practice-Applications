@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Practice Activity 7-1: Association Rules Mining</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="GSB5544_PA_7_1_Association_Rules_files/libs/clipboard/clipboard.min.js"></script>
+<script src="GSB5544_PA_7_1_Association_Rules_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="GSB5544_PA_7_1_Association_Rules_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="GSB5544_PA_7_1_Association_Rules_files/libs/quarto-html/popper.min.js"></script>
+<script src="GSB5544_PA_7_1_Association_Rules_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="GSB5544_PA_7_1_Association_Rules_files/libs/quarto-html/anchor.min.js"></script>
+<link href="GSB5544_PA_7_1_Association_Rules_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="GSB5544_PA_7_1_Association_Rules_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="GSB5544_PA_7_1_Association_Rules_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="GSB5544_PA_7_1_Association_Rules_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="GSB5544_PA_7_1_Association_Rules_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Practice Activity 7-1: Association Rules Mining</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In the reading you analyzed transactions from a bakery. In this activity you will carry out a very similar analysis for purchases from a grocery store.</p>
+<div id="cell-2" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> plotnine <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mlxtend.frequent_patterns <span class="im">import</span> apriori, association_rules</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># to stop an annoying warning</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">DeprecationWarning</span>, module<span class="op">=</span><span class="st">"jupyter_client"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="groceries-data-set" class="level2">
+<h2 class="anchored" data-anchor-id="groceries-data-set">Groceries data set</h2>
+<ul>
+<li>One month (30 days) of real point-of-sale transactions from a grocery store.</li>
+<li>9,835 transactions (baskets).</li>
+<li>169 product categories, such as whole milk, yogurt, bottled beer, etc.</li>
+<li>Source: the data set <code>Groceries</code> in the R package <code>arules</code>, provided by Hahsler, Hornik, and Reutterer. The copy we use is a plain-text version hosted on GitHub.</li>
+</ul>
+<p>The file format is different from the bakery file. The bakery file had one row per item bought. This file has <strong>one line per transaction</strong>, and each line is a comma-separated list of the items in that basket. Different baskets have different numbers of items.</p>
+<p>The next cell reads each line into a single text column. (Normal CSV reading expects every row to have the same number of columns, so we read each line as one string, using a separator <code>"|"</code> that never occurs in the file.)</p>
+<div id="cell-4" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> csv</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> pd.read_csv(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/groceries.csv"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="va">None</span>,             <span class="co"># the file has no header row: line 1 is already a transaction</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    names<span class="op">=</span>[<span class="st">"basket"</span>],        <span class="co"># name the one column we create</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    sep<span class="op">=</span><span class="st">"|"</span>,                 <span class="co"># "|" never appears in this file, so each whole line lands in one column</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    quoting<span class="op">=</span>csv.QUOTE_NONE,  <span class="co"># treat any quote characters as ordinary text</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-5" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>raw</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">basket</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>citrus fruit,semi-finished bread,margarine,rea...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>tropical fruit,yogurt,coffee</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>whole milk</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>pip fruit,yogurt,cream cheese ,meat spreads</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>other vegetables,whole milk,condensed milk,lon...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">9830</th>
+<td>sausage,chicken,beef,hamburger meat,citrus fru...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9831</th>
+<td>cooking chocolate</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">9832</th>
+<td>chicken,citrus fruit,other vegetables,butter,y...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9833</th>
+<td>semi-finished bread,bottled water,soda,bottled...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">9834</th>
+<td>chicken,tropical fruit,other vegetables,vinega...</td>
+</tr>
+</tbody>
+</table>
+
+<p>9835 rows × 1 columns</p>
+</div>
+</div>
+</div>
+<p>We’ll start with the data in long format like in the reading.</p>
+<ul>
+<li>Make a column <code>basket_id</code> from the row number (<code>raw.index</code>).</li>
+<li>Split the text in <code>raw["basket"]</code> at the commas, using <code>.str.split(",")</code>. This produces a <em>list</em> of items in each row.</li>
+<li>Use <code>.explode(...)</code> on the column of lists to get one row per item.</li>
+<li>Keep only <code>basket_id</code> and <code>item</code>, and use <code>.reset_index(drop=True)</code>.</li>
+<li>Trim spaces</li>
+</ul>
+<div id="cell-7" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">long</span> <span class="op">=</span> (</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    raw</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .assign(basket_id<span class="op">=</span>raw.index)                    <span class="co"># use the row number as the basket ID</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    .assign(item<span class="op">=</span>raw[<span class="st">"basket"</span>].<span class="bu">str</span>.split(<span class="st">","</span>))      <span class="co"># "milk,bread" becomes ["milk", "bread"]</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    .explode(<span class="st">"item"</span>)                                <span class="co"># one row per (basket, item)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    [[<span class="st">"basket_id"</span>, <span class="st">"item"</span>]]                         <span class="co"># keep only the two columns we need</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    .reset_index(drop<span class="op">=</span><span class="va">True</span>)                         <span class="co"># renumber the rows 0, 1, 2, ...</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="bu">long</span>[<span class="st">"item"</span>] <span class="op">=</span> <span class="bu">long</span>[<span class="st">"item"</span>].<span class="bu">str</span>.strip()             <span class="co"># remove stray leading/trailing spaces</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="bu">long</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">basket_id</th>
+<th data-quarto-table-cell-role="th">item</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0</td>
+<td>citrus fruit</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>0</td>
+<td>semi-finished bread</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>0</td>
+<td>margarine</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>0</td>
+<td>ready soups</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>1</td>
+<td>tropical fruit</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">43362</th>
+<td>9834</td>
+<td>chicken</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">43363</th>
+<td>9834</td>
+<td>tropical fruit</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">43364</th>
+<td>9834</td>
+<td>other vegetables</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">43365</th>
+<td>9834</td>
+<td>vinegar</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">43366</th>
+<td>9834</td>
+<td>shopping bags</td>
+</tr>
+</tbody>
+</table>
+
+<p>43367 rows × 2 columns</p>
+</div>
+</div>
+</div>
+<ol type="1">
+<li>Build the transaction-by-item table <code>basket</code>. There should be one row per basket, one column per item, with <code>True</code> if the item is in the basket and <code>False</code> otherwise.</li>
+</ol>
+<div id="cell-9" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>basket <span class="op">=</span> pd.crosstab(<span class="bu">long</span>[<span class="st">"basket_id"</span>], <span class="bu">long</span>[<span class="st">"item"</span>]) <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(basket.shape)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>basket.iloc[:<span class="dv">5</span>, :<span class="dv">6</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(9835, 169)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">item</th>
+<th data-quarto-table-cell-role="th">Instant food products</th>
+<th data-quarto-table-cell-role="th">UHT-milk</th>
+<th data-quarto-table-cell-role="th">abrasive cleaner</th>
+<th data-quarto-table-cell-role="th">artif. sweetener</th>
+<th data-quarto-table-cell-role="th">baby cosmetics</th>
+<th data-quarto-table-cell-role="th">baby food</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">basket_id</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li>Compute the size (number of items) of each basket and store it in <code>basket_sizes</code>.</li>
+</ol>
+<div id="cell-11" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>basket_sizes <span class="op">=</span> basket.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>basket_sizes.head(<span class="dv">20</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<pre><code>basket_id
+0     4
+1     3
+2     1
+3     4
+4     4
+5     5
+6     1
+7     5
+8     1
+9     2
+10    5
+11    9
+12    1
+13    3
+14    2
+15    4
+16    1
+17    1
+18    1
+19    1
+dtype: int64</code></pre>
+</div>
+</div>
+<ol start="3" type="1">
+<li>Summarize the distribution of the number of items.</li>
+</ol>
+<div id="cell-13" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>basket_sizes.describe()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>count    9835.000000
+mean        4.409456
+std         3.589385
+min         1.000000
+25%         2.000000
+50%         3.000000
+75%         6.000000
+max        32.000000
+dtype: float64</code></pre>
+</div>
+</div>
+<div id="cell-14" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>basket_sizes.value_counts().sort_index()           <span class="co">#number of baskets that contain column 1 number of items</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>1     2159
+2     1643
+3     1299
+4     1005
+5      855
+6      645
+7      545
+8      438
+9      350
+10     246
+11     182
+12     117
+13      78
+14      77
+15      55
+16      46
+17      29
+18      14
+19      14
+20       9
+21      11
+22       4
+23       6
+24       1
+26       1
+27       1
+28       1
+29       3
+32       1
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<ol start="4" type="1">
+<li>Compute the support of every item, sorted from largest to smallest, and store it in <code>item_support</code>. Then make a horizontal bar chart of the 15 most popular items.</li>
+</ol>
+<div id="cell-16" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>item_support <span class="op">=</span> basket.mean().sort_values(ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>item_support.head(<span class="dv">15</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>item
+whole milk          0.255516
+other vegetables    0.193493
+rolls/buns          0.183935
+soda                0.174377
+yogurt              0.139502
+bottled water       0.110524
+root vegetables     0.108998
+tropical fruit      0.104931
+shopping bags       0.098526
+sausage             0.093950
+pastry              0.088968
+citrus fruit        0.082766
+bottled beer        0.080529
+newspapers          0.079817
+canned beer         0.077682
+dtype: float64</code></pre>
+</div>
+</div>
+<div id="cell-17" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> font_manager, rcParams</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>font_manager.fontManager.addfont(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"/System/Library/Fonts/Supplemental/Arial.ttf"</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>rcParams[<span class="st">"font.family"</span>] <span class="op">=</span> <span class="st">"Arial"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-18" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>top_15 <span class="op">=</span> (</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    item_support</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    .head(<span class="dv">15</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    .rename(<span class="st">"support"</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    .reset_index()</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    ggplot(top_15, aes(x<span class="op">=</span><span class="st">"reorder(item, support)"</span>, y<span class="op">=</span><span class="st">"support"</span>))</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_col()</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> coord_flip()</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> labs(</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="st">"Item"</span>,</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span><span class="st">"Support"</span>,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"15 Most Popular Grocery Items"</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> theme(text<span class="op">=</span>element_text(family<span class="op">=</span><span class="st">"Arial"</span>))</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="GSB5544_PA_7_1_Association_Rules_files/figure-html/cell-12-output-1.png" width="660" height="500" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="5" type="1">
+<li>Consider the basket sizes and the item supports. Which item is most popular, and in what percentage of baskets does it appear? Which items are most common? What does this suggest about the “popular items co-occur just by chance” problem discussed in the reading?</li>
+</ol>
+<p>Whole milk is the most popular item, appearing in about 25.6% of all baskets. Other vegetables, rolls/buns, soda, and yogurt are also among the most common items. Since baskets contain about 4.4 items on average and these products appear frequently on their own, popular items may occur together often simply because each is common, not necessarily because customers have a meaningful tendency to purchase them together. Therefore, co-occurrence can be misleading, and a measure like lift is more apt to compare the observed co-occurrence with what we would expect by chance.</p>
+<ol start="6" type="1">
+<li>Consider the rule <strong>{yogurt} → {whole milk}</strong>. Compute and interpret the confidence of this rule.</li>
+</ol>
+<div id="cell-22" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>support_yogurt <span class="op">=</span> basket[<span class="st">"yogurt"</span>].mean()</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>support_both <span class="op">=</span> (</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    basket[[<span class="st">"yogurt"</span>, <span class="st">"whole milk"</span>]]</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">all</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    .mean()</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>confidence <span class="op">=</span> support_both <span class="op">/</span> support_yogurt</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>confidence</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>np.float64(0.40160349854227406)</code></pre>
+</div>
+</div>
+<p>The confidence of {yogurt} → {whole milk} is approximately 0.402. This means that about 40.2% of the baskets containing yogurt also contain whole milk.</p>
+<ol start="7" type="1">
+<li>Compute and interpret the <strong>lift</strong> of {yogurt} → {whole milk}.</li>
+</ol>
+<div id="cell-25" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>support_whole_milk <span class="op">=</span> basket[<span class="st">"whole milk"</span>].mean()</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>lift <span class="op">=</span> confidence <span class="op">/</span> support_whole_milk</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>lift</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>np.float64(1.5717351405345266)</code></pre>
+</div>
+</div>
+<p>The lift of {yogurt} → {whole milk} is approximately 1.57. This means that baskets containing yogurt are about 1.57 times as likely to contain whole milk as a typical basket. Because the lift is greater than 1, yogurt and whole milk have a positive association and occur together more frequently than we would expect by chance.</p>
+<ol start="8" type="1">
+<li>Now compute and interpret the confidence and lift for the rule {whole milk} → {yogurt}.</li>
+</ol>
+<div id="cell-28" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>confidence_reverse <span class="op">=</span> support_both <span class="op">/</span> support_whole_milk</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>lift_reverse <span class="op">=</span> support_both <span class="op">/</span> (</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    support_whole_milk <span class="op">*</span> support_yogurt</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confidence:"</span>, confidence_reverse)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Lift:"</span>, lift_reverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confidence: 0.21925984878631116
+Lift: 1.5717351405345263</code></pre>
+</div>
+</div>
+<p>The confidence of {whole milk} → {yogurt} is approximately 0.219, meaning that about 21.9% of baskets containing whole milk also contain yogurt. The lift is approximately 1.57, so whole milk and yogurt occur together about 1.57 times as frequently as expected by chance. The confidence changes when the rule is reversed, but the lift remains the same because lift measures the association between the two items rather than the rule’s direction.</p>
+<ol start="9" type="1">
+<li>Write two functions.</li>
+</ol>
+<ul>
+<li><code>support(items, onehot)</code>: returns the share of baskets that contain <strong>all</strong> of the items in the list <code>items</code>.</li>
+<li><code>rule_metrics(antecedent, consequent, onehot)</code>: returns a Pandas Series with the <code>support</code>, <code>confidence</code>, and <code>lift</code> of the rule <code>antecedent -&gt; consequent</code>. Both <code>antecedent</code> and <code>consequent</code> are <em>lists</em> of items.</li>
+</ul>
+<p>Test the functions on <code>["yogurt"]</code> → <code>["whole milk"]</code>. The values should match the ones you computed earlier.</p>
+<div id="cell-31" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> support(items, onehot):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> onehot[items].<span class="bu">all</span>(axis<span class="op">=</span><span class="dv">1</span>).mean()</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rule_metrics(antecedent, consequent, onehot):</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    antecedent_support <span class="op">=</span> support(antecedent, onehot)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    consequent_support <span class="op">=</span> support(consequent, onehot)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    rule_support <span class="op">=</span> support(antecedent <span class="op">+</span> consequent, onehot)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    confidence <span class="op">=</span> rule_support <span class="op">/</span> antecedent_support</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    lift <span class="op">=</span> confidence <span class="op">/</span> consequent_support</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.Series({</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">"support"</span>: rule_support,</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">"confidence"</span>: confidence,</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"lift"</span>: lift</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-32" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>rule_metrics(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"yogurt"</span>],</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"whole milk"</span>],</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    basket</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>support       0.056024
+confidence    0.401603
+lift          1.571735
+dtype: float64</code></pre>
+</div>
+</div>
+<ol start="10" type="1">
+<li>Whole milk is in about a quarter of all baskets. Consider the rules <code>{X} → {whole milk}</code> for the five antecedents <code>X</code> in the next cell. Before running anything, predict: for which of these will the lift be <strong>above 1</strong>? For which might the confidence look decent but the lift be <strong>close to or below 1</strong>? Just think about this before proceeding.</li>
+</ol>
+<div id="cell-34" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>antecedents <span class="op">=</span> pd.Series([<span class="st">"yogurt"</span>, <span class="st">"rolls/buns"</span>, <span class="st">"bottled water"</span>, <span class="st">"soda"</span>, <span class="st">"other vegetables"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ol start="11" type="1">
+<li>Compute the support, confidence, and lift of <code>{X} → {whole milk}</code> for each of the five antecedents above, and display the results sorted by lift (largest first). Compare to your predictions. Hint: Use <code>apply</code> with <code>lambda</code> on the Series of antecedents.</li>
+</ol>
+<div id="cell-36" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> antecedents.<span class="bu">apply</span>(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">lambda</span> x: rule_metrics([x], [<span class="st">"whole milk"</span>], basket)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>results.insert(<span class="dv">0</span>, <span class="st">"antecedent"</span>, antecedents)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>results.sort_values(<span class="st">"lift"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedent</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>yogurt</td>
+<td>0.056024</td>
+<td>0.401603</td>
+<td>1.571735</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">4</th>
+<td>other vegetables</td>
+<td>0.074835</td>
+<td>0.386758</td>
+<td>1.513634</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>bottled water</td>
+<td>0.034367</td>
+<td>0.310948</td>
+<td>1.216940</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>rolls/buns</td>
+<td>0.056634</td>
+<td>0.307905</td>
+<td>1.205032</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">3</th>
+<td>soda</td>
+<td>0.040061</td>
+<td>0.229738</td>
+<td>0.899112</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ol start="12" type="1">
+<li>Run <code>apriori</code> on <code>basket</code> with <code>min_support=0.01</code> and store the result in <code>frequent_itemsets</code>. Then add a column <code>n_items</code> giving the number of items in each itemset.</li>
+</ol>
+<div id="cell-38" class="cell" data-execution_count="25">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>frequent_itemsets <span class="op">=</span> apriori(</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    basket,</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    min_support<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    use_colnames<span class="op">=</span><span class="va">True</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>frequent_itemsets[<span class="st">"n_items"</span>] <span class="op">=</span> (</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    frequent_itemsets[<span class="st">"itemsets"</span>].<span class="bu">apply</span>(<span class="bu">len</span>)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>frequent_itemsets</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">itemsets</th>
+<th data-quarto-table-cell-role="th">n_items</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0.033452</td>
+<td>(UHT-milk)</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>0.017692</td>
+<td>(baking powder)</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>0.052466</td>
+<td>(beef)</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>0.033249</td>
+<td>(berries)</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>0.026029</td>
+<td>(beverages)</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">328</th>
+<td>0.011998</td>
+<td>(root vegetables, whole milk, tropical fruit)</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">329</th>
+<td>0.014540</td>
+<td>(root vegetables, yogurt, whole milk)</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">330</th>
+<td>0.010473</td>
+<td>(soda, yogurt, whole milk)</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">331</th>
+<td>0.015150</td>
+<td>(yogurt, whole milk, tropical fruit)</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">332</th>
+<td>0.010880</td>
+<td>(yogurt, whole milk, whipped/sour cream)</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+
+<p>333 rows × 3 columns</p>
+</div>
+</div>
+</div>
+<ol start="13" type="1">
+<li>Generate the rules with <code>make_rules</code>, keeping rules with confidence of at least 0.20. Store them in <code>rules</code> and print how many there are.</li>
+</ol>
+<div id="cell-40" class="cell" data-execution_count="26">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_rules(frequent_itemsets, min_confidence):</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> association_rules(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>        frequent_itemsets,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>        metric<span class="op">=</span><span class="st">"confidence"</span>,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>        min_threshold<span class="op">=</span>min_confidence</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-41" class="cell" data-execution_count="27">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>rules <span class="op">=</span> make_rules(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    frequent_itemsets,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    min_confidence<span class="op">=</span><span class="fl">0.20</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(rules), <span class="st">"rules"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>234 rules</code></pre>
+</div>
+</div>
+<ol start="14" type="1">
+<li>Make the rules easier to read. Create a copy <code>rules_display</code> of <code>rules</code> and add three columns:</li>
+</ol>
+<ul>
+<li><code>antecedent</code>: the antecedent items as text, e.g.&nbsp;<code>"tropical fruit, yogurt"</code></li>
+<li><code>consequent</code>: the consequent items as text</li>
+<li><code>transactions</code>: the number of baskets that contain the whole rule (support times the number of baskets, rounded to an integer)</li>
+</ul>
+<p>Then display the columns <code>antecedent</code>, <code>consequent</code>, <code>support</code>, <code>confidence</code>, <code>lift</code>, <code>transactions</code> for the first 8 rules.</p>
+<div id="cell-43" class="cell" data-execution_count="28">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>rules_display <span class="op">=</span> rules.copy()</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>rules_display[<span class="st">"antecedent"</span>] <span class="op">=</span> (</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    rules_display[<span class="st">"antecedents"</span>]</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">apply</span>(<span class="kw">lambda</span> items: <span class="st">", "</span>.join(<span class="bu">sorted</span>(items)))</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>rules_display[<span class="st">"consequent"</span>] <span class="op">=</span> (</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    rules_display[<span class="st">"consequents"</span>]</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">apply</span>(<span class="kw">lambda</span> items: <span class="st">", "</span>.join(<span class="bu">sorted</span>(items)))</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>rules_display[<span class="st">"transactions"</span>] <span class="op">=</span> (</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>    rules_display[<span class="st">"support"</span>] <span class="op">*</span> <span class="bu">len</span>(basket)</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>).<span class="bu">round</span>().astype(<span class="bu">int</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-44" class="cell" data-execution_count="29">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>columns_to_show <span class="op">=</span> [</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"antecedent"</span>,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"consequent"</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"support"</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"confidence"</span>,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lift"</span>,</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"transactions"</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>rules_display[columns_to_show].head(<span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedent</th>
+<th data-quarto-table-cell-role="th">consequent</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+<th data-quarto-table-cell-role="th">transactions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>beef</td>
+<td>other vegetables</td>
+<td>0.019725</td>
+<td>0.375969</td>
+<td>1.943066</td>
+<td>194</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>beef</td>
+<td>rolls/buns</td>
+<td>0.013625</td>
+<td>0.259690</td>
+<td>1.411858</td>
+<td>134</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>beef</td>
+<td>root vegetables</td>
+<td>0.017387</td>
+<td>0.331395</td>
+<td>3.040367</td>
+<td>171</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>beef</td>
+<td>whole milk</td>
+<td>0.021251</td>
+<td>0.405039</td>
+<td>1.585180</td>
+<td>209</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>beef</td>
+<td>yogurt</td>
+<td>0.011693</td>
+<td>0.222868</td>
+<td>1.597601</td>
+<td>115</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>berries</td>
+<td>other vegetables</td>
+<td>0.010269</td>
+<td>0.308869</td>
+<td>1.596280</td>
+<td>101</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>berries</td>
+<td>whole milk</td>
+<td>0.011795</td>
+<td>0.354740</td>
+<td>1.388328</td>
+<td>116</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>berries</td>
+<td>yogurt</td>
+<td>0.010574</td>
+<td>0.318043</td>
+<td>2.279848</td>
+<td>104</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ol start="15" type="1">
+<li>Show the 10 rules with the highest <strong>confidence</strong>. What do the highest-confidence rules have in common? Why is confidence alone a poor guide here?</li>
+</ol>
+<div id="cell-46" class="cell" data-execution_count="30">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>top_confidence <span class="op">=</span> (</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    rules_display</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">"confidence"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    [columns_to_show]</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    .head(<span class="dv">10</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>top_confidence</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="30">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedent</th>
+<th data-quarto-table-cell-role="th">consequent</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+<th data-quarto-table-cell-role="th">transactions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">156</th>
+<td>citrus fruit, root vegetables</td>
+<td>other vegetables</td>
+<td>0.010371</td>
+<td>0.586207</td>
+<td>3.029608</td>
+<td>102</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">185</th>
+<td>root vegetables, tropical fruit</td>
+<td>other vegetables</td>
+<td>0.012303</td>
+<td>0.584541</td>
+<td>3.020999</td>
+<td>121</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">164</th>
+<td>curd, yogurt</td>
+<td>whole milk</td>
+<td>0.010066</td>
+<td>0.582353</td>
+<td>2.279125</td>
+<td>99</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">154</th>
+<td>butter, other vegetables</td>
+<td>whole milk</td>
+<td>0.011490</td>
+<td>0.573604</td>
+<td>2.244885</td>
+<td>113</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">222</th>
+<td>root vegetables, tropical fruit</td>
+<td>whole milk</td>
+<td>0.011998</td>
+<td>0.570048</td>
+<td>2.230969</td>
+<td>118</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">225</th>
+<td>root vegetables, yogurt</td>
+<td>whole milk</td>
+<td>0.014540</td>
+<td>0.562992</td>
+<td>2.203354</td>
+<td>143</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">166</th>
+<td>domestic eggs, other vegetables</td>
+<td>whole milk</td>
+<td>0.012303</td>
+<td>0.552511</td>
+<td>2.162336</td>
+<td>121</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">233</th>
+<td>whipped/sour cream, yogurt</td>
+<td>whole milk</td>
+<td>0.010880</td>
+<td>0.524510</td>
+<td>2.052747</td>
+<td>107</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">213</th>
+<td>rolls/buns, root vegetables</td>
+<td>whole milk</td>
+<td>0.012710</td>
+<td>0.523013</td>
+<td>2.046888</td>
+<td>125</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">172</th>
+<td>other vegetables, pip fruit</td>
+<td>whole milk</td>
+<td>0.013523</td>
+<td>0.517510</td>
+<td>2.025351</td>
+<td>133</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Many of the highest-confidence rules have a very popular product, especially whole milk or other vegetables, as the consequent. Confidence alone is a poor guide because popular products appear in many baskets regardless of the antecedent. Therefore, a rule can have high confidence simply because its consequent is common, rather than because the items have a particularly strong association. Lift should also be considered because it compares the observed relationship with what would be expected by chance.</p>
+<ol start="16" type="1">
+<li>Show the 10 rules with the highest <strong>lift</strong>. Compare this list with the highest-confidence list. What kinds of products appear now? Look at the <code>support</code> and <code>transactions</code> columns: how much evidence is each of these rules based on?</li>
+</ol>
+<div id="cell-49" class="cell" data-execution_count="31">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>top_lift <span class="op">=</span> (</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    rules_display</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">"lift"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    [columns_to_show]</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    .head(<span class="dv">10</span>)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>top_lift</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="31">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedent</th>
+<th data-quarto-table-cell-role="th">consequent</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+<th data-quarto-table-cell-role="th">transactions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">158</th>
+<td>citrus fruit, other vegetables</td>
+<td>root vegetables</td>
+<td>0.010371</td>
+<td>0.359155</td>
+<td>3.295045</td>
+<td>102</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">207</th>
+<td>other vegetables, yogurt</td>
+<td>whipped/sour cream</td>
+<td>0.010168</td>
+<td>0.234192</td>
+<td>3.267062</td>
+<td>100</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">186</th>
+<td>other vegetables, tropical fruit</td>
+<td>root vegetables</td>
+<td>0.012303</td>
+<td>0.342776</td>
+<td>3.144780</td>
+<td>121</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2</th>
+<td>beef</td>
+<td>root vegetables</td>
+<td>0.017387</td>
+<td>0.331395</td>
+<td>3.040367</td>
+<td>171</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">156</th>
+<td>citrus fruit, root vegetables</td>
+<td>other vegetables</td>
+<td>0.010371</td>
+<td>0.586207</td>
+<td>3.029608</td>
+<td>102</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">185</th>
+<td>root vegetables, tropical fruit</td>
+<td>other vegetables</td>
+<td>0.012303</td>
+<td>0.584541</td>
+<td>3.020999</td>
+<td>121</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">189</th>
+<td>other vegetables, whole milk</td>
+<td>root vegetables</td>
+<td>0.023183</td>
+<td>0.309783</td>
+<td>2.842082</td>
+<td>228</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">190</th>
+<td>root vegetables</td>
+<td>other vegetables, whole milk</td>
+<td>0.023183</td>
+<td>0.212687</td>
+<td>2.842082</td>
+<td>228</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">155</th>
+<td>butter</td>
+<td>other vegetables, whole milk</td>
+<td>0.011490</td>
+<td>0.207339</td>
+<td>2.770630</td>
+<td>113</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">163</th>
+<td>curd, whole milk</td>
+<td>yogurt</td>
+<td>0.010066</td>
+<td>0.385214</td>
+<td>2.761356</td>
+<td>99</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The highest-lift list contains more specific combinations of related products, rather than being dominated by popular products such as whole milk. These rules represent items that occur together substantially more often than expected by chance. However, their support is generally low, and many are based on only about 1–2% of the baskets, or roughly 100–200 transactions. Thus, the high lift suggests a strong association, but the relatively small number of transactions means there is less evidence supporting each rule than there may be for more common combinations.</p>
+<ol start="17" type="1">
+<li>Create <code>interesting_rules</code>: the rules with <strong>confidence of at least 0.30 and lift of at least 1.5</strong>, sorted by lift (largest first).</li>
+</ol>
+<div id="cell-52" class="cell" data-execution_count="32">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>interesting_rules <span class="op">=</span> (</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    rules_display</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    .loc[</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>        (rules_display[<span class="st">"confidence"</span>] <span class="op">&gt;=</span> <span class="fl">0.30</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">&amp;</span> (rules_display[<span class="st">"lift"</span>] <span class="op">&gt;=</span> <span class="fl">1.5</span>)</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">"lift"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    .copy()</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>interesting_rules[columns_to_show]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedent</th>
+<th data-quarto-table-cell-role="th">consequent</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+<th data-quarto-table-cell-role="th">transactions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">158</th>
+<td>citrus fruit, other vegetables</td>
+<td>root vegetables</td>
+<td>0.010371</td>
+<td>0.359155</td>
+<td>3.295045</td>
+<td>102</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">186</th>
+<td>other vegetables, tropical fruit</td>
+<td>root vegetables</td>
+<td>0.012303</td>
+<td>0.342776</td>
+<td>3.144780</td>
+<td>121</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>beef</td>
+<td>root vegetables</td>
+<td>0.017387</td>
+<td>0.331395</td>
+<td>3.040367</td>
+<td>171</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">156</th>
+<td>citrus fruit, root vegetables</td>
+<td>other vegetables</td>
+<td>0.010371</td>
+<td>0.586207</td>
+<td>3.029608</td>
+<td>102</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">185</th>
+<td>root vegetables, tropical fruit</td>
+<td>other vegetables</td>
+<td>0.012303</td>
+<td>0.584541</td>
+<td>3.020999</td>
+<td>121</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">89</th>
+<td>onions</td>
+<td>whole milk</td>
+<td>0.012100</td>
+<td>0.390164</td>
+<td>1.526965</td>
+<td>119</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">72</th>
+<td>hygiene articles</td>
+<td>whole milk</td>
+<td>0.012811</td>
+<td>0.388889</td>
+<td>1.521975</td>
+<td>126</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">17</th>
+<td>brown bread</td>
+<td>whole milk</td>
+<td>0.025216</td>
+<td>0.388715</td>
+<td>1.521293</td>
+<td>248</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">106</th>
+<td>other vegetables</td>
+<td>whole milk</td>
+<td>0.074835</td>
+<td>0.386758</td>
+<td>1.513634</td>
+<td>736</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">118</th>
+<td>pork</td>
+<td>whole milk</td>
+<td>0.022166</td>
+<td>0.384480</td>
+<td>1.504719</td>
+<td>218</td>
+</tr>
+</tbody>
+</table>
+
+<p>108 rows × 6 columns</p>
+</div>
+</div>
+</div>
+<ol start="18" type="1">
+<li>Choose <strong>one</strong> rule from the table and interpret its <strong>support</strong>, <strong>confidence</strong>, and <strong>lift</strong> with numbers, as you did for {yogurt} → {whole milk}.</li>
+</ol>
+<div id="cell-54" class="cell" data-execution_count="33">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>chosen_rule <span class="op">=</span> interesting_rules.iloc[<span class="dv">0</span>]</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>chosen_rule[columns_to_show]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="33">
+<pre><code>antecedent      citrus fruit, other vegetables
+consequent                     root vegetables
+support                               0.010371
+confidence                            0.359155
+lift                                  3.295045
+transactions                               102
+Name: 158, dtype: object</code></pre>
+</div>
+</div>
+<div id="cell-55" class="cell" data-execution_count="34">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"The rule </span><span class="ch">{{</span><span class="sc">{</span>chosen_rule[<span class="st">'antecedent'</span>]<span class="sc">}</span><span class="ch">}}</span><span class="ss"> → "</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="ch">{{</span><span class="sc">{</span>chosen_rule[<span class="st">'consequent'</span>]<span class="sc">}</span><span class="ch">}}</span><span class="ss"> has support "</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>chosen_rule[<span class="st">'support'</span>]<span class="sc">:.1%}</span><span class="ss">, meaning that both sides of the rule "</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"appear together in </span><span class="sc">{</span>chosen_rule[<span class="st">'support'</span>]<span class="sc">:.1%}</span><span class="ss"> of all baskets. "</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Its confidence is </span><span class="sc">{</span>chosen_rule[<span class="st">'confidence'</span>]<span class="sc">:.1%}</span><span class="ss">, meaning that "</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>chosen_rule[<span class="st">'confidence'</span>]<span class="sc">:.1%}</span><span class="ss"> of baskets containing "</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>chosen_rule[<span class="st">'antecedent'</span>]<span class="sc">}</span><span class="ss"> also contain "</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>chosen_rule[<span class="st">'consequent'</span>]<span class="sc">}</span><span class="ss">. Its lift is "</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>chosen_rule[<span class="st">'lift'</span>]<span class="sc">:.2f}</span><span class="ss">, so these items occur together "</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>chosen_rule[<span class="st">'lift'</span>]<span class="sc">:.2f}</span><span class="ss"> times as often as expected by chance."</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The rule {citrus fruit, other vegetables} → {root vegetables} has support 1.0%, meaning that both sides of the rule appear together in 1.0% of all baskets. Its confidence is 35.9%, meaning that 35.9% of baskets containing citrus fruit, other vegetables also contain root vegetables. Its lift is 3.30, so these items occur together 3.30 times as often as expected by chance.</code></pre>
+</div>
+</div>
+<ol start="19" type="1">
+<li>The manager wants to <strong>increase sales of yogurt</strong>. Which products should the store link to yogurt (shelf placement, a joint promotion, a recommendation)?</li>
+</ol>
+<div id="cell-57" class="cell" data-execution_count="35">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>yogurt_rules <span class="op">=</span> (</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    rules_display</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    .loc[</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>        (rules_display[<span class="st">"consequents"</span>] <span class="op">==</span> <span class="bu">frozenset</span>({<span class="st">"yogurt"</span>}))</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">&amp;</span> (rules_display[<span class="st">"antecedents"</span>].<span class="bu">apply</span>(<span class="bu">len</span>) <span class="op">==</span> <span class="dv">1</span>)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">"lift"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>yogurt_rules[columns_to_show].head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="35">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedent</th>
+<th data-quarto-table-cell-role="th">consequent</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">lift</th>
+<th data-quarto-table-cell-role="th">transactions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">47</th>
+<td>curd</td>
+<td>yogurt</td>
+<td>0.017285</td>
+<td>0.324427</td>
+<td>2.325615</td>
+<td>170</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>berries</td>
+<td>yogurt</td>
+<td>0.010574</td>
+<td>0.318043</td>
+<td>2.279848</td>
+<td>104</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">43</th>
+<td>cream cheese</td>
+<td>yogurt</td>
+<td>0.012405</td>
+<td>0.312821</td>
+<td>2.242412</td>
+<td>122</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">147</th>
+<td>whipped/sour cream</td>
+<td>yogurt</td>
+<td>0.020742</td>
+<td>0.289362</td>
+<td>2.074251</td>
+<td>204</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">144</th>
+<td>tropical fruit</td>
+<td>yogurt</td>
+<td>0.029283</td>
+<td>0.279070</td>
+<td>2.000475</td>
+<td>288</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">23</th>
+<td>butter</td>
+<td>yogurt</td>
+<td>0.014642</td>
+<td>0.264220</td>
+<td>1.894027</td>
+<td>144</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">38</th>
+<td>citrus fruit</td>
+<td>yogurt</td>
+<td>0.021657</td>
+<td>0.261671</td>
+<td>1.875752</td>
+<td>213</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">67</th>
+<td>fruit/vegetable juice</td>
+<td>yogurt</td>
+<td>0.018709</td>
+<td>0.258790</td>
+<td>1.855105</td>
+<td>184</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">62</th>
+<td>frozen vegetables</td>
+<td>yogurt</td>
+<td>0.012405</td>
+<td>0.257928</td>
+<td>1.848924</td>
+<td>122</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">78</th>
+<td>margarine</td>
+<td>yogurt</td>
+<td>0.014235</td>
+<td>0.243056</td>
+<td>1.742312</td>
+<td>140</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The store should consider linking yogurt with products such as curd, whipped/sour cream, and tropical fruit. These products have positive lift values with yogurt, meaning that customers purchase them with yogurt more frequently than would be expected by chance. Curd appears to have one of the strongest relationships with yogurt. Whole milk could also be considered because it occurs with yogurt relatively often, although its lift is less impressive because whole milk is already a very popular product. The store should consider both lift and the number of supporting transactions before choosing a promotion.</p>
+<hr>
+</section>
+<section id="references-and-attribution" class="level2">
+<h2 class="anchored" data-anchor-id="references-and-attribution">References and attribution</h2>
+<ul>
+<li>Hahsler, M., Grün, B., and Hornik, K. (2005). arules: A computational environment for mining association rules and frequent item sets. <em>Journal of Statistical Software</em>, 14(15). (The R package that distributes the data.)</li>
+<li>Data copy: GitHub repository <code>stedy/Machine-Learning-with-R-datasets</code> (<code>groceries.csv</code>), the data used in Lantz, B., <em>Machine Learning with R</em>.</li>
+<li>Raschka, S. (2018). MLxtend: Providing machine learning and data science utilities and extensions to Python’s scientific computing stack. <em>Journal of Open Source Software</em>, 3(24), 638. <a href="https://doi.org/10.21105/joss.00638" class="uri">https://doi.org/10.21105/joss.00638</a></li>
+</ul>
+<p><strong>Preparation of this notebook:</strong> drafted with the assistance of generative AI tools (ChatGPT and Claude).</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

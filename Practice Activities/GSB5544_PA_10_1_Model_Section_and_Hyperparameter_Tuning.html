@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Model Selection and Hyperparameter Tuning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/clipboard/clipboard.min.js"></script>
+<script src="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/quarto-html/popper.min.js"></script>
+<script src="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/quarto-html/anchor.min.js"></script>
+<link href="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Model Selection and Hyperparameter Tuning</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Use scikit-learn as much as possible!</strong></p>
+<div id="cell-2" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> KNeighborsRegressor</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.tree <span class="im">import</span> DecisionTreeRegressor</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.compose <span class="im">import</span> ColumnTransformer</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> OneHotEncoder, StandardScaler</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.impute <span class="im">import</span> SimpleImputer</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> Pipeline</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> KFold, cross_val_score, GridSearchCV</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="ames-housing-data" class="level2">
+<h2 class="anchored" data-anchor-id="ames-housing-data">Ames Housing Data</h2>
+<p>As usual, we’ll try to predict SalePrice using a mix of quantitative and categorical features. See the <a href="https://jse.amstat.org/v19n3/decock/DataDocumentation.txt">data documentation</a> for all the variables that are available in the data set. We’ll try to come up with a model that minimizes test error, measured by root mean square error (RMSE).</p>
+<div id="cell-4" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df_ames <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/kevindavisross/data301/main/data/AmesHousing.txt"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_ames</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Order</th>
+<th data-quarto-table-cell-role="th">PID</th>
+<th data-quarto-table-cell-role="th">MS SubClass</th>
+<th data-quarto-table-cell-role="th">MS Zoning</th>
+<th data-quarto-table-cell-role="th">Lot Frontage</th>
+<th data-quarto-table-cell-role="th">Lot Area</th>
+<th data-quarto-table-cell-role="th">Street</th>
+<th data-quarto-table-cell-role="th">Alley</th>
+<th data-quarto-table-cell-role="th">Lot Shape</th>
+<th data-quarto-table-cell-role="th">Land Contour</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">Pool Area</th>
+<th data-quarto-table-cell-role="th">Pool QC</th>
+<th data-quarto-table-cell-role="th">Fence</th>
+<th data-quarto-table-cell-role="th">Misc Feature</th>
+<th data-quarto-table-cell-role="th">Misc Val</th>
+<th data-quarto-table-cell-role="th">Mo Sold</th>
+<th data-quarto-table-cell-role="th">Yr Sold</th>
+<th data-quarto-table-cell-role="th">Sale Type</th>
+<th data-quarto-table-cell-role="th">Sale Condition</th>
+<th data-quarto-table-cell-role="th">SalePrice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>1</td>
+<td>526301100</td>
+<td>20</td>
+<td>RL</td>
+<td>141.0</td>
+<td>31770</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>IR1</td>
+<td>Lvl</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>0</td>
+<td>5</td>
+<td>2010</td>
+<td>WD</td>
+<td>Normal</td>
+<td>215000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2</td>
+<td>526350040</td>
+<td>20</td>
+<td>RH</td>
+<td>80.0</td>
+<td>11622</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>Reg</td>
+<td>Lvl</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>MnPrv</td>
+<td>NaN</td>
+<td>0</td>
+<td>6</td>
+<td>2010</td>
+<td>WD</td>
+<td>Normal</td>
+<td>105000</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>3</td>
+<td>526351010</td>
+<td>20</td>
+<td>RL</td>
+<td>81.0</td>
+<td>14267</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>IR1</td>
+<td>Lvl</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Gar2</td>
+<td>12500</td>
+<td>6</td>
+<td>2010</td>
+<td>WD</td>
+<td>Normal</td>
+<td>172000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>4</td>
+<td>526353030</td>
+<td>20</td>
+<td>RL</td>
+<td>93.0</td>
+<td>11160</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>Reg</td>
+<td>Lvl</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>0</td>
+<td>4</td>
+<td>2010</td>
+<td>WD</td>
+<td>Normal</td>
+<td>244000</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>5</td>
+<td>527105010</td>
+<td>60</td>
+<td>RL</td>
+<td>74.0</td>
+<td>13830</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>IR1</td>
+<td>Lvl</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>MnPrv</td>
+<td>NaN</td>
+<td>0</td>
+<td>3</td>
+<td>2010</td>
+<td>WD</td>
+<td>Normal</td>
+<td>189900</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2925</th>
+<td>2926</td>
+<td>923275080</td>
+<td>80</td>
+<td>RL</td>
+<td>37.0</td>
+<td>7937</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>IR1</td>
+<td>Lvl</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>GdPrv</td>
+<td>NaN</td>
+<td>0</td>
+<td>3</td>
+<td>2006</td>
+<td>WD</td>
+<td>Normal</td>
+<td>142500</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2926</th>
+<td>2927</td>
+<td>923276100</td>
+<td>20</td>
+<td>RL</td>
+<td>NaN</td>
+<td>8885</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>IR1</td>
+<td>Low</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>MnPrv</td>
+<td>NaN</td>
+<td>0</td>
+<td>6</td>
+<td>2006</td>
+<td>WD</td>
+<td>Normal</td>
+<td>131000</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2927</th>
+<td>2928</td>
+<td>923400125</td>
+<td>85</td>
+<td>RL</td>
+<td>62.0</td>
+<td>10441</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>Reg</td>
+<td>Lvl</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>MnPrv</td>
+<td>Shed</td>
+<td>700</td>
+<td>7</td>
+<td>2006</td>
+<td>WD</td>
+<td>Normal</td>
+<td>132000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2928</th>
+<td>2929</td>
+<td>924100070</td>
+<td>20</td>
+<td>RL</td>
+<td>77.0</td>
+<td>10010</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>Reg</td>
+<td>Lvl</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>0</td>
+<td>4</td>
+<td>2006</td>
+<td>WD</td>
+<td>Normal</td>
+<td>170000</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2929</th>
+<td>2930</td>
+<td>924151050</td>
+<td>60</td>
+<td>RL</td>
+<td>74.0</td>
+<td>9627</td>
+<td>Pave</td>
+<td>NaN</td>
+<td>Reg</td>
+<td>Lvl</td>
+<td>...</td>
+<td>0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>0</td>
+<td>11</td>
+<td>2006</td>
+<td>WD</td>
+<td>Normal</td>
+<td>188000</td>
+</tr>
+</tbody>
+</table>
+
+<p>2930 rows × 82 columns</p>
+</div>
+</div>
+</div>
+<p>1. Recall that in a previous notebook we fit a 10-nearest neighbors regression model that predicts the price (just <strong>SalePrice</strong>, not log) of a home using square footage (<strong>Gr Liv Area</strong>), number of bedrooms (<strong>Bedroom AbvGr</strong>), number of full bathrooms (<strong>Full Bath</strong>), number of half bathrooms (<strong>Half Bath</strong>), and <strong>Neighborhood</strong>. But what about other sets of features?</p>
+<p>Specify 5 sets of features to investigate. These sets could be subsets of the variables above, but you should also include other variables from the data set. The choice is up to you, but try to guess which sets might lead to good models based on your intuition and what we have already seen for this data set.</p>
+<p>For each set of features, fit a 10-nearest neighbors regression model and estimate its test error (RMSE) using cross-validation. You can write a loop to iterate over the sets of features similar to what was done in the Model Selection section of the pre-class notebook.</p>
+<p>Report your lowest RMSE and the corresponding features.</p>
+<div id="cell-7" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE. ADD CELLS AS NEEDED</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> df_ames[<span class="st">"SalePrice"</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> KFold(n_splits<span class="op">=</span> <span class="dv">5</span>, shuffle<span class="op">=</span><span class="va">True</span>, random_state<span class="op">=</span><span class="dv">5544</span>)     <span class="co"># the same 5 folds for every candidate</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> preprocessing(numeric, categorical<span class="op">=</span>(), scale<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Impute + (optionally) scale the numeric columns; one-hot encode the categorical ones."""</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    numeric_steps <span class="op">=</span> [(<span class="st">"impute"</span>, SimpleImputer(strategy<span class="op">=</span><span class="st">"median"</span>))]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> scale:</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        numeric_steps.append((<span class="st">"scale"</span>, StandardScaler()))</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    transformers <span class="op">=</span> [(<span class="st">"num"</span>, Pipeline(numeric_steps), <span class="bu">list</span>(numeric))]</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> categorical:</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        transformers.append((<span class="st">"cat"</span>, OneHotEncoder(handle_unknown<span class="op">=</span><span class="st">"ignore"</span>), <span class="bu">list</span>(categorical)))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ColumnTransformer(transformers)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cv_rmse(model, columns):</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Cross-validated test RMSE (dollars) of a model on the given columns, on the shared folds."""</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> cross_val_score(model, df_ames[columns], y, cv<span class="op">=</span>folds, scoring<span class="op">=</span><span class="st">"neg_root_mean_squared_error"</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>scores.mean()</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df_ames.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(2930, 82)</code></pre>
+</div>
+</div>
+<div id="cell-8" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>feature_sets <span class="op">=</span> {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"size only"</span>:                             ([<span class="st">"Gr Liv Area"</span>], []),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"size + quality"</span>:                        ([<span class="st">"Gr Liv Area"</span>, <span class="st">"Overall Qual"</span>], []),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"size + quality + lot"</span>:                 ([<span class="st">"Gr Liv Area"</span>, <span class="st">"Overall Qual"</span>, <span class="st">"Lot Area"</span>], []),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"size + quality + lot + year"</span>:          ([<span class="st">"Gr Liv Area"</span>, <span class="st">"Overall Qual"</span>, <span class="st">"Lot Area"</span>, <span class="st">"Year Built"</span>], []),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"size + quality + lot + Neighborhood"</span>:  ([<span class="st">"Gr Liv Area"</span>, <span class="st">"Overall Qual"</span>, <span class="st">"Lot Area"</span>], [<span class="st">"Neighborhood"</span>]),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"size + quality + lot + full_bath + year + Neighborhood"</span>:  ([<span class="st">"Gr Liv Area"</span>, <span class="st">"Overall Qual"</span>, <span class="st">"Lot Area"</span>, <span class="st">"Full Bath"</span>, <span class="st">"Year Built"</span>], [<span class="st">"Neighborhood"</span>]),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> {}</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, (numeric, categorical) <span class="kw">in</span> feature_sets.items():</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    pipe <span class="op">=</span> Pipeline([(<span class="st">"prep"</span>, preprocessing(numeric, categorical)),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                     (<span class="st">"knn"</span>, KNeighborsRegressor(n_neighbors<span class="op">=</span><span class="dv">10</span>))])</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    results[name] <span class="op">=</span> cv_rmse(pipe, numeric <span class="op">+</span> categorical)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>pd.Series(results, name<span class="op">=</span><span class="st">"CV test RMSE (10-NN)"</span>).<span class="bu">round</span>(<span class="dv">0</span>).to_frame()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CV test RMSE (10-NN)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">size only</th>
+<td>57893.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">size + quality</th>
+<td>36549.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">size + quality + lot</th>
+<td>35398.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">size + quality + lot + year</th>
+<td>32171.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">size + quality + lot + Neighborhood</th>
+<td>33169.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">size + quality + lot + full_bath + year + Neighborhood</th>
+<td>32262.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>2. Recall that in a previous notebook we fit a <span class="math inline">\(k\)</span>-nearest neighbors regression model that predicts the price (just <strong>SalePrice</strong>, not log) of a home using square footage (<strong>Gr Liv Area</strong>), number of bedrooms (<strong>Bedroom AbvGr</strong>), number of full bathrooms (<strong>Full Bath</strong>), number of half bathrooms (<strong>Half Bath</strong>), and <strong>Neighborhood</strong>. Previously we used a loop to iterate and find the value of <span class="math inline">\(k\)</span> with the smallest test error (RMSE).</p>
+<p>Now use grid search in scikit-learn to implement this process. Use the results to create a plot of test error versus <span class="math inline">\(k\)</span>.</p>
+<div id="cell-10" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>numeric, categorical <span class="op">=</span> feature_sets[<span class="st">"size + quality + lot + year"</span>]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>columns <span class="op">=</span> numeric <span class="op">+</span> categorical</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>by_hand <span class="op">=</span> {}</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> [<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>]:</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    pipe <span class="op">=</span> Pipeline([(<span class="st">"prep"</span>, preprocessing(numeric, categorical)),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                     (<span class="st">"knn"</span>, KNeighborsRegressor(n_neighbors<span class="op">=</span>k))])</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    by_hand[k] <span class="op">=</span> cv_rmse(pipe, columns)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>pd.Series(by_hand, name<span class="op">=</span><span class="st">"CV test RMSE"</span>).<span class="bu">round</span>(<span class="dv">0</span>).to_frame()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CV test RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">1</th>
+<td>39294.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>34271.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">5</th>
+<td>33426.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">10</th>
+<td>32171.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">20</th>
+<td>32928.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">50</th>
+<td>33301.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-11" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE. ADD CELLS AS NEEDED</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>pipe <span class="op">=</span> Pipeline([(<span class="st">"prep"</span>, preprocessing(numeric, categorical)),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                 (<span class="st">"knn"</span>, KNeighborsRegressor())])            <span class="co"># no k yet: the grid supplies it</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>param_grid <span class="op">=</span> {<span class="st">"knn__n_neighbors"</span>: <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">26</span>)}</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> GridSearchCV(pipe, param_grid, cv<span class="op">=</span>folds, scoring<span class="op">=</span><span class="st">"neg_root_mean_squared_error"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>grid.fit(df_ames[columns], y)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"best parameters:"</span>, grid.best_params_)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"best CV test RMSE:"</span>, <span class="bu">round</span>(<span class="op">-</span>grid.best_score_))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>best parameters: {'knn__n_neighbors': 11}
+best CV test RMSE: 32094</code></pre>
+</div>
+</div>
+<div id="cell-12" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cv_table <span class="op">=</span> pd.DataFrame(grid.cv_results_)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>cv_table[<span class="st">"CV test RMSE"</span>] <span class="op">=</span> <span class="op">-</span>cv_table[<span class="st">"mean_test_score"</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>cv_table[[<span class="st">"param_knn__n_neighbors"</span>, <span class="st">"CV test RMSE"</span>, <span class="st">"std_test_score"</span>, <span class="st">"rank_test_score"</span>]].<span class="bu">round</span>(<span class="dv">0</span>).head(<span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">param_knn__n_neighbors</th>
+<th data-quarto-table-cell-role="th">CV test RMSE</th>
+<th data-quarto-table-cell-role="th">std_test_score</th>
+<th data-quarto-table-cell-role="th">rank_test_score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>1</td>
+<td>39294.0</td>
+<td>2732.0</td>
+<td>25</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2</td>
+<td>34524.0</td>
+<td>1955.0</td>
+<td>24</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>3</td>
+<td>34271.0</td>
+<td>2242.0</td>
+<td>22</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>4</td>
+<td>34382.0</td>
+<td>2556.0</td>
+<td>23</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>5</td>
+<td>33426.0</td>
+<td>2837.0</td>
+<td>21</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>6</td>
+<td>32999.0</td>
+<td>2899.0</td>
+<td>20</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>7</td>
+<td>32743.0</td>
+<td>2814.0</td>
+<td>11</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>8</td>
+<td>32477.0</td>
+<td>2746.0</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>9</td>
+<td>32317.0</td>
+<td>2997.0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
+<td>10</td>
+<td>32171.0</td>
+<td>3021.0</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">10</th>
+<td>11</td>
+<td>32094.0</td>
+<td>2975.0</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">11</th>
+<td>12</td>
+<td>32399.0</td>
+<td>3065.0</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-13" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> cv_table.plot(x<span class="op">=</span><span class="st">"param_knn__n_neighbors"</span>, y<span class="op">=</span><span class="st">"CV test RMSE"</span>, marker<span class="op">=</span><span class="st">"o"</span>, legend<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>ax.axvline(grid.best_params_[<span class="st">"knn__n_neighbors"</span>], color<span class="op">=</span><span class="st">"firebrick"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"k (n_neighbors)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"cross-validated test RMSE ($)"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"GridSearchCV over k"</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/figure-html/cell-10-output-1.png" width="590" height="453" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>3. <span class="math inline">\(k\)</span>-nearest neighbors relies on distance and we know there are different distance metrics. Repeat the previous part and use grid search to iterate over both (1) <code>n_neighbors</code> and (2) <code>metric</code>, which can be <code>"euclidean"</code> or <code>"manhattan"</code> (see the the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html"><code>KNeighborsRegressor</code> documentation</a>). Compare the results to the previous part. (Hint: recall the note in the pre-class notebook about grid search conventions for refering to steps in the pipeline.)</p>
+<div id="cell-15" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Search over both k and the distance metric.</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>param_grid_2 <span class="op">=</span> {</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"knn__n_neighbors"</span>: <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">26</span>),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"knn__metric"</span>: [<span class="st">"euclidean"</span>, <span class="st">"manhattan"</span>]</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>grid2 <span class="op">=</span> GridSearchCV(pipe, param_grid_2, cv<span class="op">=</span>folds,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                     scoring<span class="op">=</span><span class="st">"neg_root_mean_squared_error"</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>grid2.fit(df_ames[columns], y)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Question 3 best parameters:"</span>, grid2.best_params_)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Question 3 CV test RMSE: $"</span>, <span class="bu">round</span>(<span class="op">-</span>grid2.best_score_))</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"This is slightly better than the search over k alone."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Question 3 best parameters: {'knn__metric': 'manhattan', 'knn__n_neighbors': 14}
+Question 3 CV test RMSE: $ 31600
+This is slightly better than the search over k alone.</code></pre>
+</div>
+</div>
+<p>4. Combine elements of the previous parts and fit what you think will be the best <span class="math inline">\(k\)</span>-nearest neighbors model. Specify which features you are using, the value of <span class="math inline">\(k\)</span>, and the distance metric. Estimate the test error. (In 2-3 you used the specified set of features. Now you can combine elements of 2-3 with the features you chose in part 1, or other sets of features, as well as investigating other parameter choices.)</p>
+<p>Note: Look at the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html"><code>KNeighborsRegressor</code> documentation</a> for a full list of parameters. You might consider tuning <code>n_neighbors</code>, <code>metric</code> (or <code>p</code>), and/or <code>weights</code>. You could also try other elements like scaling too.</p>
+<div id="cell-17" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the strongest feature set from Question 1 and also tune the weights.</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>best_features <span class="op">=</span> <span class="st">"size + quality + lot + full_bath + year + Neighborhood"</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>numeric_best, categorical_best <span class="op">=</span> feature_sets[best_features]</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>columns_best <span class="op">=</span> numeric_best <span class="op">+</span> categorical_best</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>knn_best_pipe <span class="op">=</span> Pipeline([</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"prep"</span>, preprocessing(numeric_best, categorical_best)),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"knn"</span>, KNeighborsRegressor())</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>param_grid_best <span class="op">=</span> {</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"knn__n_neighbors"</span>: <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">26</span>),</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"knn__metric"</span>: [<span class="st">"euclidean"</span>, <span class="st">"manhattan"</span>],</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"knn__weights"</span>: [<span class="st">"uniform"</span>, <span class="st">"distance"</span>]</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>grid_best_knn <span class="op">=</span> GridSearchCV(knn_best_pipe, param_grid_best, cv<span class="op">=</span>folds,</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>                              scoring<span class="op">=</span><span class="st">"neg_root_mean_squared_error"</span>)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>grid_best_knn.fit(df_ames[columns_best], y)</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>knn_rmse <span class="op">=</span> <span class="op">-</span>grid_best_knn.best_score_</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Question 4 features:"</span>, columns_best)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Question 4 best parameters:"</span>, grid_best_knn.best_params_)</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Question 4 CV test RMSE: $"</span>, <span class="bu">round</span>(knn_rmse))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Question 4 features: ['Gr Liv Area', 'Overall Qual', 'Lot Area', 'Full Bath', 'Year Built', 'Neighborhood']
+Question 4 best parameters: {'knn__metric': 'manhattan', 'knn__n_neighbors': 5, 'knn__weights': 'distance'}
+Question 4 CV test RMSE: $ 30466</code></pre>
+</div>
+</div>
+<p>5. Now fit a linear regression model using the same features that you used in the previous part. Estimate the test error. How does the test error for linear regression compare to the kNN model?</p>
+<div id="cell-19" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>linear_pipe <span class="op">=</span> Pipeline([</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"prep"</span>, preprocessing(numeric_best, categorical_best)),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"linear"</span>, LinearRegression())</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>linear_scores <span class="op">=</span> cross_val_score(</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    linear_pipe, df_ames[columns_best], y, cv<span class="op">=</span>folds,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    scoring<span class="op">=</span><span class="st">"neg_root_mean_squared_error"</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>linear_rmse <span class="op">=</span> <span class="op">-</span>linear_scores.mean()</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Question 5 linear regression CV test RMSE: $"</span>, <span class="bu">round</span>(linear_rmse))</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Linear regression is $"</span>, <span class="bu">round</span>(linear_rmse <span class="op">-</span> knn_rmse),</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">"worse than the tuned KNN model."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Question 5 linear regression CV test RMSE: $ 34992
+Linear regression is $ 4527 worse than the tuned KNN model.</code></pre>
+</div>
+</div>
+</section>
+<section id="loans-data" class="level2">
+<h2 class="anchored" data-anchor-id="loans-data">Loans Data</h2>
+<p>The loans data set represents thousands of loans made through the Lending Club platform, which is a platform that allows individuals to lend to other individuals. Of course, not all loans are created equal. Someone who is a essentially a sure bet to pay back a loan will have an easier time getting a loan with a low interest rate than someone who appears to be riskier. And for people who are very risky? They may not even get a loan offer, or they may not have accepted the loan offer due to a high interest rate. It is important to keep that last part in mind, since this dataset only represents loans actually made, i.e.&nbsp;do not mistake this data for loan applications!</p>
+<p><a href="https://openintrostat.github.io/openintro/reference/loans_full_schema.html">Some information about the data set is here</a>. There are also some related exercises in this <a href="https://openintro-ims.netlify.app/inf-model-mlr.html">OpenIntro textbook</a>.</p>
+<p><strong>Our goal will be to develop a regression model for predicting <code>interest_rate</code>.</strong></p>
+<p>We will have a competition to see who can come up with the model with the smallest test RMSE. Fit several models and try to find the smallest test RMSE. When you think you have a good one, share your model and its test RMSE. Then see what other people have done; can you do even better?</p>
+<p>Note: when you are consider features to include, you might want to consider transformations of the variables.</p>
+<p>You should use <code>GridSearchCV</code> to tune at least one parameter.</p>
+<p>Note: you should do some exploration of the data first before you start fitting models.</p>
+<div id="cell-21" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/kevindavisross/data301/refs/heads/main/data/loans_full_schema.csv"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Unnamed: 0</th>
+<th data-quarto-table-cell-role="th">emp_title</th>
+<th data-quarto-table-cell-role="th">emp_length</th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">homeownership</th>
+<th data-quarto-table-cell-role="th">annual_income</th>
+<th data-quarto-table-cell-role="th">verified_income</th>
+<th data-quarto-table-cell-role="th">debt_to_income</th>
+<th data-quarto-table-cell-role="th">annual_income_joint</th>
+<th data-quarto-table-cell-role="th">verification_income_joint</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">sub_grade</th>
+<th data-quarto-table-cell-role="th">issue_month</th>
+<th data-quarto-table-cell-role="th">loan_status</th>
+<th data-quarto-table-cell-role="th">initial_listing_status</th>
+<th data-quarto-table-cell-role="th">disbursement_method</th>
+<th data-quarto-table-cell-role="th">balance</th>
+<th data-quarto-table-cell-role="th">paid_total</th>
+<th data-quarto-table-cell-role="th">paid_principal</th>
+<th data-quarto-table-cell-role="th">paid_interest</th>
+<th data-quarto-table-cell-role="th">paid_late_fees</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>1</td>
+<td>global config engineer</td>
+<td>3.0</td>
+<td>NJ</td>
+<td>MORTGAGE</td>
+<td>90000.0</td>
+<td>Verified</td>
+<td>18.01</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>C3</td>
+<td>Mar-2018</td>
+<td>Current</td>
+<td>whole</td>
+<td>Cash</td>
+<td>27015.86</td>
+<td>1999.33</td>
+<td>984.14</td>
+<td>1015.19</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2</td>
+<td>warehouse office clerk</td>
+<td>10.0</td>
+<td>HI</td>
+<td>RENT</td>
+<td>40000.0</td>
+<td>Not Verified</td>
+<td>5.04</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>C1</td>
+<td>Feb-2018</td>
+<td>Current</td>
+<td>whole</td>
+<td>Cash</td>
+<td>4651.37</td>
+<td>499.12</td>
+<td>348.63</td>
+<td>150.49</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>3</td>
+<td>assembly</td>
+<td>3.0</td>
+<td>WI</td>
+<td>RENT</td>
+<td>40000.0</td>
+<td>Source Verified</td>
+<td>21.15</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>D1</td>
+<td>Feb-2018</td>
+<td>Current</td>
+<td>fractional</td>
+<td>Cash</td>
+<td>1824.63</td>
+<td>281.80</td>
+<td>175.37</td>
+<td>106.43</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>4</td>
+<td>customer service</td>
+<td>1.0</td>
+<td>PA</td>
+<td>RENT</td>
+<td>30000.0</td>
+<td>Not Verified</td>
+<td>10.16</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>A3</td>
+<td>Jan-2018</td>
+<td>Current</td>
+<td>whole</td>
+<td>Cash</td>
+<td>18853.26</td>
+<td>3312.89</td>
+<td>2746.74</td>
+<td>566.15</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>5</td>
+<td>security supervisor</td>
+<td>10.0</td>
+<td>CA</td>
+<td>RENT</td>
+<td>35000.0</td>
+<td>Verified</td>
+<td>57.96</td>
+<td>57000.0</td>
+<td>Verified</td>
+<td>...</td>
+<td>C3</td>
+<td>Mar-2018</td>
+<td>Current</td>
+<td>whole</td>
+<td>Cash</td>
+<td>21430.15</td>
+<td>2324.65</td>
+<td>1569.85</td>
+<td>754.80</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">9995</th>
+<td>9996</td>
+<td>owner</td>
+<td>10.0</td>
+<td>TX</td>
+<td>RENT</td>
+<td>108000.0</td>
+<td>Source Verified</td>
+<td>22.28</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>A4</td>
+<td>Jan-2018</td>
+<td>Current</td>
+<td>whole</td>
+<td>Cash</td>
+<td>21586.34</td>
+<td>2969.80</td>
+<td>2413.66</td>
+<td>556.14</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9996</th>
+<td>9997</td>
+<td>director</td>
+<td>8.0</td>
+<td>PA</td>
+<td>MORTGAGE</td>
+<td>121000.0</td>
+<td>Verified</td>
+<td>32.38</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>D3</td>
+<td>Feb-2018</td>
+<td>Current</td>
+<td>whole</td>
+<td>Cash</td>
+<td>9147.44</td>
+<td>1456.31</td>
+<td>852.56</td>
+<td>603.75</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">9997</th>
+<td>9998</td>
+<td>toolmaker</td>
+<td>10.0</td>
+<td>CT</td>
+<td>MORTGAGE</td>
+<td>67000.0</td>
+<td>Verified</td>
+<td>45.26</td>
+<td>107000.0</td>
+<td>Source Verified</td>
+<td>...</td>
+<td>E2</td>
+<td>Feb-2018</td>
+<td>Current</td>
+<td>fractional</td>
+<td>Cash</td>
+<td>27617.65</td>
+<td>4620.80</td>
+<td>2382.35</td>
+<td>2238.45</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9998</th>
+<td>9999</td>
+<td>manager</td>
+<td>1.0</td>
+<td>WI</td>
+<td>MORTGAGE</td>
+<td>80000.0</td>
+<td>Source Verified</td>
+<td>11.99</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>A1</td>
+<td>Feb-2018</td>
+<td>Current</td>
+<td>whole</td>
+<td>Cash</td>
+<td>21518.12</td>
+<td>2873.31</td>
+<td>2481.88</td>
+<td>391.43</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">9999</th>
+<td>10000</td>
+<td>operations analyst</td>
+<td>3.0</td>
+<td>CT</td>
+<td>RENT</td>
+<td>66000.0</td>
+<td>Not Verified</td>
+<td>20.82</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>B4</td>
+<td>Feb-2018</td>
+<td>Current</td>
+<td>whole</td>
+<td>Cash</td>
+<td>11574.83</td>
+<td>1658.56</td>
+<td>1225.17</td>
+<td>433.39</td>
+<td>0.0</td>
+</tr>
+</tbody>
+</table>
+
+<p>10000 rows × 56 columns</p>
+</div>
+</div>
+</div>
+<div id="cell-22" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Explore the response and two useful categorical predictors.</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Data shape:"</span>, df.shape)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>display(df[<span class="st">"interest_rate"</span>].describe().<span class="bu">round</span>(<span class="dv">2</span>))</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>display(df.groupby(<span class="st">"sub_grade"</span>)[<span class="st">"interest_rate"</span>].agg([<span class="st">"count"</span>, <span class="st">"mean"</span>]).<span class="bu">round</span>(<span class="dv">2</span>))</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>display(df.groupby(<span class="st">"issue_month"</span>)[<span class="st">"interest_rate"</span>].mean().<span class="bu">round</span>(<span class="dv">2</span>).to_frame())</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"interest_rate"</span>].plot.hist(bins<span class="op">=</span><span class="dv">20</span>, edgecolor<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Interest rate"</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Distribution of loan interest rates"</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep the model simple and avoid post-loan variables such as paid_interest.</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>loan_features <span class="op">=</span> [<span class="st">"sub_grade"</span>, <span class="st">"issue_month"</span>]</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>X_loans <span class="op">=</span> df[loan_features]</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>y_loans <span class="op">=</span> df[<span class="st">"interest_rate"</span>]</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>loan_folds <span class="op">=</span> KFold(n_splits<span class="op">=</span><span class="dv">5</span>, shuffle<span class="op">=</span><span class="va">True</span>, random_state<span class="op">=</span><span class="dv">5544</span>)</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>loan_prep <span class="op">=</span> ColumnTransformer([</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"cat"</span>, OneHotEncoder(handle_unknown<span class="op">=</span><span class="st">"ignore"</span>), loan_features)</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 1: linear regression (no tuning needed).</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>loan_linear <span class="op">=</span> Pipeline([</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"prep"</span>, loan_prep),</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"model"</span>, LinearRegression())</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>linear_loan_rmse <span class="op">=</span> <span class="op">-</span>cross_val_score(</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    loan_linear, X_loans, y_loans, cv<span class="op">=</span>loan_folds,</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    scoring<span class="op">=</span><span class="st">"neg_root_mean_squared_error"</span></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>).mean()</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 2: tune k and weights for KNN.</span></span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>loan_knn <span class="op">=</span> Pipeline([</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"prep"</span>, loan_prep),</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"model"</span>, KNeighborsRegressor())</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>loan_knn_grid <span class="op">=</span> GridSearchCV(</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>    loan_knn,</span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"model__n_neighbors"</span>: [<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">25</span>, <span class="dv">50</span>],</span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>     <span class="st">"model__weights"</span>: [<span class="st">"uniform"</span>, <span class="st">"distance"</span>]},</span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>    cv<span class="op">=</span>loan_folds, scoring<span class="op">=</span><span class="st">"neg_root_mean_squared_error"</span></span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>).fit(X_loans, y_loans)</span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 3: tune the depth of a decision tree.</span></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>loan_tree <span class="op">=</span> Pipeline([</span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"prep"</span>, loan_prep),</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"model"</span>, DecisionTreeRegressor(random_state<span class="op">=</span><span class="dv">5544</span>))</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>loan_tree_grid <span class="op">=</span> GridSearchCV(</span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>    loan_tree,</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"model__max_depth"</span>: [<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="va">None</span>]},</span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>    cv<span class="op">=</span>loan_folds, scoring<span class="op">=</span><span class="st">"neg_root_mean_squared_error"</span></span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>).fit(X_loans, y_loans)</span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>loan_results <span class="op">=</span> pd.Series({</span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>    <span class="st">"linear regression"</span>: linear_loan_rmse,</span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"KNN </span><span class="sc">{</span>loan_knn_grid<span class="sc">.</span>best_params_<span class="sc">}</span><span class="ss">"</span>: <span class="op">-</span>loan_knn_grid.best_score_,</span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"decision tree </span><span class="sc">{</span>loan_tree_grid<span class="sc">.</span>best_params_<span class="sc">}</span><span class="ss">"</span>: <span class="op">-</span>loan_tree_grid.best_score_</span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>}, name<span class="op">=</span><span class="st">"CV test RMSE"</span>).sort_values()</span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>display(loan_results.<span class="bu">round</span>(<span class="dv">3</span>).to_frame())</span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Best loans model:"</span>, loan_results.index[<span class="dv">0</span>])</span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Best loans CV test RMSE:"</span>, <span class="bu">round</span>(loan_results.iloc[<span class="dv">0</span>], <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data shape: (10000, 56)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>count    10000.00
+mean        12.43
+std          5.00
+min          5.31
+25%          9.43
+50%         11.98
+75%         15.05
+max         30.94
+Name: interest_rate, dtype: float64</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">mean</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">sub_grade</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A1</th>
+<td>422</td>
+<td>5.32</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">A2</th>
+<td>480</td>
+<td>6.08</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A3</th>
+<td>504</td>
+<td>6.72</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">A4</th>
+<td>568</td>
+<td>7.35</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A5</th>
+<td>485</td>
+<td>7.97</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B1</th>
+<td>647</td>
+<td>9.44</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">B2</th>
+<td>638</td>
+<td>9.93</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B3</th>
+<td>540</td>
+<td>10.42</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">B4</th>
+<td>581</td>
+<td>10.91</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B5</th>
+<td>631</td>
+<td>11.99</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C1</th>
+<td>597</td>
+<td>12.62</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">C2</th>
+<td>572</td>
+<td>13.59</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C3</th>
+<td>501</td>
+<td>14.08</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">C4</th>
+<td>503</td>
+<td>15.05</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C5</th>
+<td>480</td>
+<td>16.02</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D1</th>
+<td>319</td>
+<td>17.24</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">D2</th>
+<td>323</td>
+<td>18.20</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D3</th>
+<td>311</td>
+<td>19.17</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">D4</th>
+<td>231</td>
+<td>20.10</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D5</th>
+<td>262</td>
+<td>21.59</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">E1</th>
+<td>41</td>
+<td>22.91</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">E2</th>
+<td>57</td>
+<td>23.88</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">E3</th>
+<td>73</td>
+<td>24.85</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">E4</th>
+<td>73</td>
+<td>25.82</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">E5</th>
+<td>91</td>
+<td>26.50</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">F1</th>
+<td>31</td>
+<td>28.72</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">F2</th>
+<td>9</td>
+<td>29.69</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">F3</th>
+<td>9</td>
+<td>30.17</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">F4</th>
+<td>5</td>
+<td>30.65</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">F5</th>
+<td>4</td>
+<td>30.75</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">G1</th>
+<td>11</td>
+<td>30.79</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">G4</th>
+<td>1</td>
+<td>30.94</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">interest_rate</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">issue_month</th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Feb-2018</th>
+<td>12.51</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Jan-2018</th>
+<td>12.38</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Mar-2018</th>
+<td>12.41</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="GSB5544_PA_10_1_Model_Section_and_Hyperparameter_Tuning_files/figure-html/cell-15-output-5.png" width="581" height="453" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CV test RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">decision tree {'model__max_depth': None}</th>
+<td>0.121</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">linear regression</th>
+<td>0.188</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">KNN {'model__n_neighbors': 50, 'model__weights': 'distance'}</th>
+<td>0.461</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Best loans model: decision tree {'model__max_depth': None}
+Best loans CV test RMSE: 0.121</code></pre>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
